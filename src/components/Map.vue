@@ -1,0 +1,123 @@
+<template>
+  <div class="hello">
+    <!-- Add loading -->
+    <svg v-show="!loading" id="map"></svg>
+    <div class="tooltip">
+    </div>
+  </div>
+</template>
+
+<script>
+import * as d3 from 'd3'
+export default {
+  name: 'MapCommunes',
+  props: {
+    resultsCommunes: Object
+  },
+  data: function(){
+    return {
+      loading: true
+    }
+  },
+  methods:{
+    create: function(){
+      var that = this;
+      const width = 1000, height = 1000;
+      const path = d3.geoPath();
+      const projection = d3.geoConicConformal()
+      .center([2.454071, 46.279229])
+      .scale(5000)
+      .translate([width / 2, height / 2]);
+      path.projection(projection);
+
+      const svg = d3.select('#map')
+      .attr("width", width)
+      .attr("height", height);
+
+      const communes = svg.append("g");
+      var promises = [];
+      promises.push(d3.json('/communes-version-simplifiee.json'));
+      Promise.all(promises).then(function(values) {
+        var geojson = values[0];
+        
+      communes.selectAll("path")
+          .data(geojson.features)
+          .enter()
+          .append("path")
+          .attr('id', d => d.properties.code)
+          .attr("d", path);
+
+          var tooltip = d3.select(".tooltip");
+          d3.select('#map')
+            .selectAll("path")
+            .on("mouseover", function(e) {
+              var pos = d3.select(this).node().getBoundingClientRect();
+              tooltip.transition()        
+                  .duration(200)      
+                  .style("opacity", .9);
+                  console.log(e.properties.code);
+              tooltip.html( "<b>Commune : </b>" + e.properties.nom + "(" + e.properties.code + ")<br/>"
+                          + "<b>Vainqueur : </b>" + that.resultsCommunes[e.properties.code].winner)
+                    .style("left", pos.x + 50 + "px")     
+                    .style("top", (pos.y) + "px");
+            });
+            that.update();  
+            that.loading = false;          
+      });
+    },
+    update: function(){
+      var that = this;
+       d3.select('#map')
+          .selectAll("path")
+          .attr("fill", d => {
+            if(that.resultsCommunes[d.properties.code] != null){
+              if(that.resultsCommunes[d.properties.code].winner == "Macron")
+                return "orange";
+              if(that.resultsCommunes[d.properties.code].winner == "Le Pen")
+                return "violet";
+              if(that.resultsCommunes[d.properties.code].winner == "Mélenchon")
+                return "red";
+              return "blue";
+            }
+            return "grey";
+          });
+    }
+  },
+  mounted: function(){
+    this.create();
+    window.map = this;
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: left;
+  color: black;
+  padding: 12px;
+  font: 14px sans-serif;
+  background: white;
+  border: 0px;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+  line-height: 20px;
+}
+</style>
