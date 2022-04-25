@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <map-communes ref="map" :results-communes="resultsCommunes"/>
+    <map-communes v-if="init" ref="map" :results-communes="resultsCommunes"/>
   </div>
 </template>
 
@@ -15,7 +15,8 @@ export default {
   },
   data: function(){
     return {
-      resultsCommunes: {}
+      resultsCommunes: {},
+      init: false
     }
   },
   methods: {
@@ -44,6 +45,7 @@ export default {
         };
         that.setWinner(that.resultsCommunes[data["CodeInsee"]]);
       });
+      that.init = true;
   }
 }
 </script>
