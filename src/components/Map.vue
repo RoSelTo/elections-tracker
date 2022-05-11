@@ -9,6 +9,7 @@
 
 <script>
 import * as d3 from 'd3'
+import * as topojson from 'topojson'
 export default {
   name: 'MapCommunes',
   props: {
@@ -36,15 +37,17 @@ export default {
 
       const communes = svg.append("g");
       var promises = [];
-      promises.push(d3.json('/communes-version-simplifiee.json'));
+      //promises.push(d3.json('/communes-version-simplifiee.json'));
+      promises.push(d3.json('/a-com2022-topo.json'));
       Promise.all(promises).then(function(values) {
-        var geojson = values[0];
-        
+        var topology = values[0];
+        var geojson = topojson.feature(topology, topology.objects.a_com2022);
+        console.log(geojson);
       communes.selectAll("path")
           .data(geojson.features)
           .enter()
           .append("path")
-          .attr('id', d => d.properties.code)
+          .attr('id', d => d.properties.codgeo)
           .attr("d", path);
 
           var tooltip = d3.select(".tooltip");
@@ -55,9 +58,8 @@ export default {
               tooltip.transition()        
                   .duration(200)      
                   .style("opacity", .9);
-                  console.log(e.properties.code);
-              tooltip.html( "<b>Commune : </b>" + e.properties.nom + "(" + e.properties.code + ")<br/>"
-                          + "<b>Vainqueur : </b>" + that.resultsCommunes[e.properties.code].winner)
+              tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
+                          + "<b>Vainqueur : </b>" + that.resultsCommunes[e.properties.codgeo].winner)
                     .style("left", pos.x + 50 + "px")     
                     .style("top", (pos.y) + "px");
             });
@@ -70,12 +72,12 @@ export default {
        d3.select('#map')
           .selectAll("path")
           .attr("fill", d => {
-            if(that.resultsCommunes[d.properties.code] != null){
-              if(that.resultsCommunes[d.properties.code].winner == "Macron")
+            if(that.resultsCommunes[d.properties.codgeo] != null){
+              if(that.resultsCommunes[d.properties.codgeo].winner == "Macron")
                 return "orange";
-              if(that.resultsCommunes[d.properties.code].winner == "Le Pen")
+              if(that.resultsCommunes[d.properties.codgeo].winner == "Le Pen")
                 return "violet";
-              if(that.resultsCommunes[d.properties.code].winner == "Mélenchon")
+              if(that.resultsCommunes[d.properties.codgeo].winner == "Mélenchon")
                 return "red";
               return "blue";
             }
