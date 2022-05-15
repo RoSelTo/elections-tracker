@@ -37,7 +37,6 @@ export default {
 
       const communes = svg.append("g");
       var promises = [];
-      //promises.push(d3.json('/communes-version-simplifiee.json'));
       promises.push(d3.json('/a-com2022-topo.json'));
       Promise.all(promises).then(function(values) {
         var topology = values[0];
@@ -69,6 +68,7 @@ export default {
     },
     update: function(){
       var that = this;
+      var notFound = [];
        d3.select('#map')
           .selectAll("path")
           .attr("fill", d => {
@@ -81,8 +81,10 @@ export default {
                 return "red";
               return "blue";
             }
+            notFound.push(d.properties.codgeo);
             return "grey";
           });
+      console.log(notFound);
     }
   },
   mounted: function(){
