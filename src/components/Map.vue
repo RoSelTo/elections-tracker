@@ -40,31 +40,40 @@ export default {
       var promises = [];
       promises.push(d3.json('/a-com2022-topo.json'));
       Promise.all(promises).then(function(values) {
-        var topology = values[0];
-        var geojson = topojson.feature(topology, topology.objects.a_com2022);
-        console.log(geojson);
-      communes.selectAll("path")
-          .data(geojson.features)
-          .enter()
-          .append("path")
-          .attr('id', d => d.properties.codgeo)
-          .attr("d", path);
+      var topology = values[0];
+      var geojson = topojson.feature(topology, topology.objects.a_com2022);
 
-          var tooltip = d3.select(".tooltip");
-          d3.select('#map')
-            .selectAll("path")
-            .on("mouseover", function(e) {
-              var pos = d3.select(this).node().getBoundingClientRect();
-              tooltip.transition()        
-                  .duration(200)      
-                  .style("opacity", .9);
-              tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
-                          + "<b>Vainqueur : </b>" + that.resultsCommunes[e.properties.codgeo].winner)
-                    .style("left", pos.x + 50 + "px")     
-                    .style("top", (pos.y) + "px");
-            });
-            that.update();  
-            that.loading = false;          
+      communes.selectAll("path")
+        .data(geojson.features)
+        .enter()
+        .append("path")
+        .attr('id', d => d.properties.codgeo)
+        .attr("d", path);
+
+        var tooltip = d3.select(".tooltip");
+        d3.select('#map')
+          .selectAll("path")
+          .on("mouseover", function(e) {
+            var pos = d3.select(this).node().getBoundingClientRect();
+            tooltip.transition()        
+                .duration(200)      
+                .style("opacity", .9);
+            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
+                        + "<b>Vainqueur : </b>" + that.resultsCommunes[e.properties.codgeo].winner)
+                  .style("left", pos.x + 50 + "px")     
+                  .style("top", (pos.y) + "px");
+          });
+        that.update();  
+
+        var zoom = d3.zoom()
+              .scaleExtent([1, 8])
+              .on('zoom', function() {
+                  d3.select('#map').selectAll('path')
+                  .attr('transform', d3.event.transform);
+        });
+
+        svg.call(zoom);
+        that.loading = false;          
       });
     },
     update: function(){
