@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <map-communes v-if="init" ref="map" :results-communes="resultsCommunes"/>
-    <div v-else class="lds-ring"><div></div><div></div><div></div><div></div></div>
   </div>
 </template>
 
