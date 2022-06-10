@@ -5,16 +5,18 @@
     <div class="tooltip">
     </div>
     <div v-if="loading" class="lds-ring"><div></div><div></div><div></div><div></div></div>
+     <div v-if="loading">Chargement</div>
   </div>
 </template>
 
 <script>
+import myStore from './store.js'
 import * as d3 from 'd3'
 import * as topojson from 'topojson'
 export default {
   name: 'MapCommunes',
+  store: myStore,
   props: {
-    resultsCommunes: Object
   },
   data: function(){
     return {
@@ -59,9 +61,12 @@ export default {
                 .duration(200)      
                 .style("opacity", .9);
             tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
-                        + "<b>Vainqueur : </b>" + that.resultsCommunes[e.properties.codgeo].winner)
+                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
+          })
+          .on("click", function(e){
+            that.$store.commit("selectGeo", e.properties);
           });
         that.update();  
 
@@ -82,19 +87,19 @@ export default {
        d3.select('#map')
           .selectAll("path")
           .attr("fill", d => {
-            if(that.resultsCommunes[d.properties.codgeo] != null){
-              if(that.resultsCommunes[d.properties.codgeo].winner == "Macron")
+            if(that.$store.state.resultsCommunes[d.properties.codgeo] != null){
+              if(that.$store.state.resultsCommunes[d.properties.codgeo].winner == "Macron")
                 return "orange";
-              if(that.resultsCommunes[d.properties.codgeo].winner == "Le Pen")
+              if(that.$store.state.resultsCommunes[d.properties.codgeo].winner == "Le Pen")
                 return "violet";
-              if(that.resultsCommunes[d.properties.codgeo].winner == "Mélenchon")
+              if(that.$store.state.resultsCommunes[d.properties.codgeo].winner == "Mélenchon")
                 return "red";
               return "blue";
             }
             notFound.push(d.properties.codgeo);
             return "grey";
           });
-      console.log(notFound);
+      //console.log(notFound);
     }
   },
   mounted: function(){
@@ -119,6 +124,10 @@ li {
 }
 a {
   color: #42b983;
+}
+
+.map {
+  flex: auto;
 }
 
 div.tooltip {

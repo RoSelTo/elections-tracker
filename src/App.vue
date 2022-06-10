@@ -1,18 +1,23 @@
 <template>
   <div id="app">
-    <map-communes v-if="init" ref="map" :results-communes="resultsCommunes"/>
+    <map-communes v-if="init" ref="map" />
+    <tab-result />
   </div>
 </template>
 
 <script>
+import myStore from './components/store.js'
 import MapCommunes from './components/Map.vue'
+import TabResult from './components/Tab.vue'
 import * as d3 from 'd3'
 
 export default {
   name: 'App',
   components: {
-    MapCommunes
+    MapCommunes,
+    TabResult
   },
+  store: myStore,
   data: function(){
     return {
       resultsCommunes: {},
@@ -45,7 +50,8 @@ export default {
         };
         that.setWinner(that.resultsCommunes[data["CodeInsee"]]);
         that.init = true;
-      });
+    });
+    that.$store.commit("set", that.resultsCommunes);
   }
 }
 </script>
@@ -58,6 +64,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  display: flex;
 }
 
 body {
@@ -65,6 +72,8 @@ body {
 }
 
 .lds-ring {
+  margin-top: 300px;
+  margin-left: 45%;
   display: inline-block;
   position: relative;
   width: 80px;
@@ -78,10 +87,10 @@ body {
   width: 64px;
   height: 64px;
   margin: 8px;
-  border: 8px solid #fff;
+  border: 8px solid orange;
   border-radius: 50%;
   animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #fff transparent transparent transparent;
+  border-color: orange transparent transparent transparent;
 }
 .lds-ring div:nth-child(1) {
   animation-delay: -0.45s;
