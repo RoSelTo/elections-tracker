@@ -17,7 +17,7 @@ export default new Vuex.Store({
         }
     },
     getters: {
-        resultsForGeo(state){
+        resultsForGeo: function(state){
             return state.resultsCommunes[state.selectedGeo.codgeo];
         }
     }
