@@ -4,8 +4,7 @@
     <svg v-show="!loading" id="map"></svg>
     <div class="tooltip">
     </div>
-    <div v-if="loading" class="lds-ring"><div></div><div></div><div></div><div></div></div>
-     <div v-if="loading">Chargement</div>
+    <div v-if="loading" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
   </div>
 </template>
 

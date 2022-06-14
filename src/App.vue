@@ -74,7 +74,6 @@ body {
 
 .lds-ring {
   margin-top: 300px;
-  margin-left: 45%;
   display: inline-block;
   position: relative;
   width: 80px;

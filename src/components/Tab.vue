@@ -51,6 +51,8 @@ export default {
 .tab {
   flex: auto;
   text-align: center;
+  box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+  height: 500px;
 }
 
 #tab-result{
