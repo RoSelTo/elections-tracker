@@ -1,6 +1,6 @@
 <template>
-  <div class="tab">
-    <h2>Résultats {{geo.libgeo}}</h2>
+  <div class="tab box-border text-center h-[500px] flex-auto shadow-lg">
+    <h2 class="text-xl mt-10">Résultats {{geo.libgeo}}</h2>
     <table id="tab-result">
       <thead>
         <th>Candidat</th>
@@ -48,13 +48,6 @@ export default {
 </script>
 
 <style>
-.tab {
-  flex: auto;
-  text-align: center;
-  box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
-  height: 500px;
-}
-
 #tab-result{
   margin: auto;
   font-size: 18px;
