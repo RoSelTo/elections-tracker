@@ -1,5 +1,10 @@
 <template>
   <div class="map">
+    <div v-show="!loading" class="flex justify-center space-x-4">
+      <div :class="{'bg-orange-500': level == 'departements', 'bg-blue-700': level != 'departements'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapDepartements">Département</div>
+      <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapCommunes">Commune</div>
+      <div :class="{'bg-orange-500': level == 'circonscriptions', 'bg-blue-700': level != 'circonscriptions'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapCirconscriptions">Circonscription</div>
+    </div>
     <!-- Add loading -->
     <svg v-show="!loading" id="map"></svg>
     <div class="tooltip">
@@ -19,12 +24,14 @@ export default {
   },
   data: function(){
     return {
-      loading: true
+      loading: true,
+      level: "departements"
     }
   },
   methods:{
-    create: function(){
+    createMapCommunes: function(){
       var that = this;
+      that.level = "communes";
       const width = 1000, height = 1000;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
@@ -43,6 +50,120 @@ export default {
       Promise.all(promises).then(function(values) {
       var topology = values[0];
       var geojson = topojson.feature(topology, topology.objects.a_com2022);
+
+      communes.selectAll("path")
+        .data(geojson.features)
+        .enter()
+        .append("path")
+        .attr('id', d => d.properties.codgeo)
+        .attr("d", path);
+
+        var tooltip = d3.select(".tooltip");
+        d3.select('#map')
+          .selectAll("path")
+          .on("mouseover", function(e) {
+            var pos = d3.select(this).node().getBoundingClientRect();
+            tooltip.transition()        
+                .duration(200)      
+                .style("opacity", .9);
+            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
+                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner)
+                  .style("left", pos.x + 50 + "px")     
+                  .style("top", (pos.y) + "px");
+          })
+          .on("click", function(e){
+            that.$store.commit("selectGeo", e.properties);
+          });
+        that.update();  
+
+        var zoom = d3.zoom()
+              .scaleExtent([1, 8])
+              .on('zoom', function() {
+                  d3.select('#map').selectAll('path')
+                  .attr('transform', d3.event.transform);
+        });
+
+        svg.call(zoom);
+        that.loading = false;          
+      });
+    },
+    createMapDepartements: function(){
+      var that = this;
+      that.level = "departements";
+      const width = 1000, height = 1000;
+      const path = d3.geoPath();
+      const projection = d3.geoConicConformal()
+      .center([2.454071, 46.279229])
+      .scale(5000)
+      .translate([width / 2, height / 2]);
+      path.projection(projection);
+
+      const svg = d3.select('#map')
+      .attr("width", width)
+      .attr("height", height);
+
+      const communes = svg.append("g");
+      var promises = [];
+      promises.push(d3.json('/a-dep2021.json'));
+      Promise.all(promises).then(function(values) {
+      var geojson = values[0];
+
+      communes.selectAll("path")
+        .data(geojson.features)
+        .enter()
+        .append("path")
+        .attr('id', d => d.properties.codgeo)
+        .attr("d", path);
+
+        var tooltip = d3.select(".tooltip");
+        d3.select('#map')
+          .selectAll("path")
+          .on("mouseover", function(e) {
+            var pos = d3.select(this).node().getBoundingClientRect();
+            tooltip.transition()        
+                .duration(200)      
+                .style("opacity", .9);
+            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
+                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner)
+                  .style("left", pos.x + 50 + "px")     
+                  .style("top", (pos.y) + "px");
+          })
+          .on("click", function(e){
+            that.$store.commit("selectGeo", e.properties);
+          });
+        that.update();  
+
+        var zoom = d3.zoom()
+              .scaleExtent([1, 8])
+              .on('zoom', function() {
+                  d3.select('#map').selectAll('path')
+                  .attr('transform', d3.event.transform);
+        });
+
+        svg.call(zoom);
+        that.loading = false;          
+      });
+    },
+    createMapCirconscriptions: function(){
+      var that = this;
+      that.level = "circonscriptions";
+      const width = 1000, height = 1000;
+      const path = d3.geoPath();
+      const projection = d3.geoConicConformal()
+      .center([2.454071, 46.279229])
+      .scale(5000)
+      .translate([width / 2, height / 2]);
+      path.projection(projection);
+
+      const svg = d3.select('#map')
+      .attr("width", width)
+      .attr("height", height);
+
+      const communes = svg.append("g");
+      var promises = [];
+      promises.push(d3.json('/france-circonscriptions-legislatives-2012.json'));
+      Promise.all(promises).then(function(values) {
+      var geojson = values[0];
 
       communes.selectAll("path")
         .data(geojson.features)
@@ -102,7 +223,7 @@ export default {
     }
   },
   mounted: function(){
-    this.create();
+    this.createMapDepartements();
     window.map = this;
   }
 }

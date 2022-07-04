@@ -1,5 +1,5 @@
 <template>
-  <div class="tab box-border text-center h-[500px] flex-auto shadow-lg">
+  <div class="tab box-border text-center h-[500px] flex-1 shadow-lg">
     <h2 class="text-xl mt-10">Résultats {{geo.libgeo}}</h2>
     <table id="tab-result">
       <thead>
@@ -38,6 +38,8 @@ export default {
     },
     sortedResults: function(){
       var results = [];
+      if(!this.results)
+        return results;
       Object.keys(this.results).filter(k => k != "winner").forEach(k => {
         results.push({candidate: k, percent: Math.round(this.results[k]*100)/100});
       })

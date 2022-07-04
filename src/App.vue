@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <map-communes v-if="init" ref="map" />
-    <tab-result />
+    <tab-result/>
   </div>
 </template>
 
