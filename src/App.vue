@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <map-communes v-if="init" ref="map" />
-    <tab-result/>
+    <tab-result :results-france="resultsFrance"/>
   </div>
 </template>
 
@@ -21,6 +21,7 @@ export default {
   data: function(){
     return {
       resultsCommunes: {},
+      resultsFrance: [],
       init: false
     }
   },
@@ -30,10 +31,17 @@ export default {
       if(winner == null)
         console.log(results);
       results.winner = winner;
+    },
+    toTitleCase: function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     }
   },
   mounted: function(){
     var that = this;
+    d3.dsv(",", '/01-resultats-france-entiere.csv', (data) => {
+      that.resultsFrance.push({candidate: that.toTitleCase(data["cand_nom"]), percent: Math.round(data["cand_rapport_exprim"]*100)/100});
+    });
+
       d3.dsv(",", '/p2022-resultats-communes-t1.csv', (data) => {
         that.resultsCommunes[data["CodeInsee"]] = {
           "Arthaud": parseFloat(data["ARTHAUD.exp"]),

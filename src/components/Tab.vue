@@ -23,6 +23,7 @@ export default {
   name: 'TabResult',
   store: myStore,
   props: {
+    resultsFrance: Array
   },
   data: function(){
     return {
@@ -38,11 +39,13 @@ export default {
     },
     sortedResults: function(){
       var results = [];
-      if(!this.results)
-        return results;
-      Object.keys(this.results).filter(k => k != "winner").forEach(k => {
-        results.push({candidate: k, percent: Math.round(this.results[k]*100)/100});
-      })
+      if(!this.results) {
+        results = this.resultsFrance;
+      } else {
+        Object.keys(this.results).filter(k => k != "winner").forEach(k => {
+          results.push({candidate: k, percent: Math.round(this.results[k]*100)/100});
+        })
+      }
       return results.sort((a,b) => b.percent - a.percent);
     }
   }

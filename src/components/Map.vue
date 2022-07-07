@@ -5,6 +5,7 @@
       <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapCommunes">Commune</div>
       <div :class="{'bg-orange-500': level == 'circonscriptions', 'bg-blue-700': level != 'circonscriptions'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapCirconscriptions">Circonscription</div>
     </div>
+    <div v-html="strip(test)"></div>
     <!-- Add loading -->
     <svg v-show="!loading" id="map"></svg>
     <div class="tooltip">
@@ -25,10 +26,15 @@ export default {
   data: function(){
     return {
       loading: true,
-      level: "departements"
+      level: "departements",
+      test: "<img src='*' onerror='alert()'>"
     }
   },
   methods:{
+    strip: function(html){
+   let doc = new DOMParser().parseFromString(html, 'text/html');
+   return doc.body.textContent || "";
+},
     createMapCommunes: function(){
       var that = this;
       that.level = "communes";
