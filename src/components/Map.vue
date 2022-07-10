@@ -7,7 +7,7 @@
     </div>
     <div v-html="strip(test)"></div>
     <!-- Add loading -->
-    <svg v-show="!loading" id="map"></svg>
+    <svg v-show="!loading" id="map" class="m-auto"></svg>
     <div class="tooltip">
     </div>
     <div v-if="loading" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
@@ -38,6 +38,7 @@ export default {
     createMapCommunes: function(){
       var that = this;
       that.level = "communes";
+      that.$store.commit("selectLevel", that.level);
       const width = 1000, height = 1000;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
@@ -96,6 +97,7 @@ export default {
     createMapDepartements: function(){
       var that = this;
       that.level = "departements";
+      that.$store.commit("selectLevel", that.level);
       const width = 1000, height = 1000;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
@@ -118,7 +120,7 @@ export default {
         .data(geojson.features)
         .enter()
         .append("path")
-        .attr('id', d => d.properties.codgeo)
+        .attr('id', d => d.properties.dep)
         .attr("d", path);
 
         var tooltip = d3.select(".tooltip");
@@ -129,8 +131,8 @@ export default {
             tooltip.transition()        
                 .duration(200)      
                 .style("opacity", .9);
-            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
-                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner)
+            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.dep + ")<br/>"
+                        + "<b>Vainqueur : </b>" + that.$store.state.resultsDepartements[e.properties.dep].winner)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
           })
@@ -153,6 +155,7 @@ export default {
     createMapCirconscriptions: function(){
       var that = this;
       that.level = "circonscriptions";
+      that.$store.commit("selectLevel", that.level);
       const width = 1000, height = 1000;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
@@ -213,19 +216,28 @@ export default {
        d3.select('#map')
           .selectAll("path")
           .attr("fill", d => {
-            if(that.$store.state.resultsCommunes[d.properties.codgeo] != null){
-              if(that.$store.state.resultsCommunes[d.properties.codgeo].winner == "Macron")
-                return "orange";
-              if(that.$store.state.resultsCommunes[d.properties.codgeo].winner == "Le Pen")
-                return "violet";
-              if(that.$store.state.resultsCommunes[d.properties.codgeo].winner == "Mélenchon")
-                return "red";
+            var codeGeo = that.getCodeGeo(d);
+            var results = that.$store.getters.getResults;
+            if(results[codeGeo] != null){
+              if(results[codeGeo].winner == "Macron")
+                return "#FF9F0E";
+              if(results[codeGeo].winner == "Le Pen")
+                return "#802990";
+              if(results[codeGeo].winner == "Mélenchon")
+                return "#942017";
               return "blue";
             }
-            notFound.push(d.properties.codgeo);
+            notFound.push(codeGeo);
             return "grey";
           });
       //console.log(notFound);
+    },
+    getCodeGeo: function(level){
+      var that = this;
+      if(that.level == "communes")
+        return level.properties.codgeo;
+      else
+        return level.properties.dep;
     }
   },
   mounted: function(){

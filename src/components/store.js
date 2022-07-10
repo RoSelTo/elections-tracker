@@ -6,11 +6,19 @@ Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
         resultsCommunes: {},
-        selectedGeo: {}
+        resultsDepartements: {},
+        selectedGeo: {},
+        selectedLevel: ""
     },
     mutations: {
-        set(state, value) {
+        setCommunes(state, value) {
             state.resultsCommunes = value;
+        },
+        setDepartements(state, value) {
+            state.resultsDepartements = value;
+        },
+        selectLevel(state, level) {
+            state.selectedLevel = level;
         },
         selectGeo(state, geo) {
             state.selectedGeo = geo;
@@ -18,7 +26,16 @@ export default new Vuex.Store({
     },
     getters: {
         resultsForGeo: function(state){
-            return state.resultsCommunes[state.selectedGeo.codgeo];
+            if(state.selectedLevel == "communes")
+                return state.resultsCommunes[state.selectedGeo.codgeo];
+            else if(state.selectedLevel == "departements")
+                return state.resultsDepartements[state.selectedGeo.dep];
+        },
+        getResults: function(state) {
+            if(state.selectedLevel == "communes")
+                return state.resultsCommunes;
+            else if(state.selectedLevel == "departements")
+                return state.resultsDepartements;
         }
     }
 })
