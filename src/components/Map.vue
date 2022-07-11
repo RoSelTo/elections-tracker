@@ -1,11 +1,13 @@
 <template>
   <div class="map">
     <div v-show="!loading" class="flex justify-center space-x-4">
-      <div :class="{'bg-orange-500': level == 'departements', 'bg-blue-700': level != 'departements'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapDepartements">Département</div>
-      <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapCommunes">Commune</div>
-      <div :class="{'bg-orange-500': level == 'circonscriptions', 'bg-blue-700': level != 'circonscriptions'}" class="text-white px-5 py-3 font-bold" v-on:click="createMapCirconscriptions">Circonscription</div>
+      <div :class="{'bg-orange-500': level == 'departements', 'bg-blue-700': level != 'departements'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
+        v-on:click="createMapDepartements">Département</div>
+      <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
+        v-on:click="createMapCommunes">Commune</div>
+      <div :class="{'bg-orange-500': level == 'circonscriptions', 'bg-blue-700': level != 'circonscriptions'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
+        v-on:click="createMapCirconscriptions">Circonscription</div>
     </div>
-    <div v-html="strip(test)"></div>
     <!-- Add loading -->
     <svg v-show="!loading" id="map" class="m-auto"></svg>
     <div class="tooltip">
@@ -25,18 +27,14 @@ export default {
   },
   data: function(){
     return {
-      loading: true,
-      level: "departements",
-      test: "<img src='*' onerror='alert()'>"
+      loading: false,
+      level: "departements"
     }
   },
   methods:{
-    strip: function(html){
-   let doc = new DOMParser().parseFromString(html, 'text/html');
-   return doc.body.textContent || "";
-},
     createMapCommunes: function(){
       var that = this;
+      that.loading = true; 
       that.level = "communes";
       that.$store.commit("selectLevel", that.level);
       const width = 1000, height = 1000;
@@ -47,6 +45,7 @@ export default {
       .translate([width / 2, height / 2]);
       path.projection(projection);
 
+      d3.select('#map').select("g").remove();
       const svg = d3.select('#map')
       .attr("width", width)
       .attr("height", height);
@@ -96,6 +95,7 @@ export default {
     },
     createMapDepartements: function(){
       var that = this;
+      that.loading = true; 
       that.level = "departements";
       that.$store.commit("selectLevel", that.level);
       const width = 1000, height = 1000;
@@ -106,6 +106,7 @@ export default {
       .translate([width / 2, height / 2]);
       path.projection(projection);
 
+      d3.select('#map').select("g").remove();
       const svg = d3.select('#map')
       .attr("width", width)
       .attr("height", height);
@@ -154,6 +155,7 @@ export default {
     },
     createMapCirconscriptions: function(){
       var that = this;
+      that.loading = true; 
       that.level = "circonscriptions";
       that.$store.commit("selectLevel", that.level);
       const width = 1000, height = 1000;
@@ -164,39 +166,40 @@ export default {
       .translate([width / 2, height / 2]);
       path.projection(projection);
 
+      d3.select('#map').select("g").remove();
       const svg = d3.select('#map')
       .attr("width", width)
       .attr("height", height);
 
-      const communes = svg.append("g");
+      const circo = svg.append("g");
       var promises = [];
       promises.push(d3.json('/france-circonscriptions-legislatives-2012.json'));
       Promise.all(promises).then(function(values) {
       var geojson = values[0];
 
-      communes.selectAll("path")
+      circo.selectAll("path")
         .data(geojson.features)
         .enter()
         .append("path")
-        .attr('id', d => d.properties.codgeo)
+        .attr('id', d => d.properties.code_dpt + "" + d.properties.num_circ.padStart(2, "0"))
         .attr("d", path);
 
-        var tooltip = d3.select(".tooltip");
-        d3.select('#map')
-          .selectAll("path")
-          .on("mouseover", function(e) {
-            var pos = d3.select(this).node().getBoundingClientRect();
-            tooltip.transition()        
-                .duration(200)      
-                .style("opacity", .9);
-            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
-                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner)
-                  .style("left", pos.x + 50 + "px")     
-                  .style("top", (pos.y) + "px");
-          })
-          .on("click", function(e){
-            that.$store.commit("selectGeo", e.properties);
-          });
+        // var tooltip = d3.select(".tooltip");
+        // d3.select('#map')
+        //   .selectAll("path")
+        //   .on("mouseover", function(e) {
+        //     var pos = d3.select(this).node().getBoundingClientRect();
+        //     tooltip.transition()        
+        //         .duration(200)      
+        //         .style("opacity", .9);
+        //     tooltip.html( "<b>Circonscription : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
+        //                 + "<b>Vainqueur : </b>" + that.$store.state.resultsCirconscriptions[e.properties.codgeo].winner)
+        //           .style("left", pos.x + 50 + "px")     
+        //           .style("top", (pos.y) + "px");
+        //   })
+        //   .on("click", function(e){
+        //     that.$store.commit("selectGeo", e.properties.code_dpt + e.properties.num_circ.padStart(2, "0"));
+        //   });
         that.update();  
 
         var zoom = d3.zoom()
@@ -236,8 +239,12 @@ export default {
       var that = this;
       if(that.level == "communes")
         return level.properties.codgeo;
-      else
+      else if (that.level == "departements")
         return level.properties.dep;
+      else if (that.level == "circonscriptions" && level.properties.num_circ != null)
+        return level.properties.code_dpt + level.properties.num_circ.padStart(2, "0");
+      else
+        console.log(level.properties);
     }
   },
   mounted: function(){

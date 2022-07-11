@@ -22,6 +22,7 @@ export default {
     return {
       resultsCommunes: {},
       resultsDepartements: {},
+      resultsCirconscriptions: {},
       resultsFrance: [],
       init: false
     }
@@ -78,8 +79,28 @@ export default {
       that.setWinner(that.resultsDepartements[data["CodeDépartement"]]);
       that.init = true;
     });
+
+    d3.dsv(",", '/p2022-resultats-circonscriptions-t1.csv', (data) => {
+      that.resultsCirconscriptions[data["CodeCirco"]] = {
+        "Arthaud": parseFloat(data["ARTHAUD.exp"]),
+        "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
+        "Hidalgo": parseFloat(data["HIDALGO.exp"]),
+        "Jadot": parseFloat(data["JADOT.exp"]),
+        "Lassalle": parseFloat(data["LASSALLE.exp"]),
+        "Le Pen": parseFloat(data["LE PEN.exp"]),
+        "Macron": parseFloat(data["MACRON.exp"]),
+        "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
+        "Poutou": parseFloat(data["POUTOU.exp"]),
+        "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
+        "Zemmour": parseFloat(data["ZEMMOUR.exp"])
+      };
+      that.setWinner(that.resultsCirconscriptions[data["CodeCirco"]]);
+      that.init = true;
+    });
+
     that.$store.commit("setCommunes", that.resultsCommunes);
     that.$store.commit("setDepartements", that.resultsDepartements);
+    that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
   }
 }
 </script>

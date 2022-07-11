@@ -7,6 +7,7 @@ export default new Vuex.Store({
     state: {
         resultsCommunes: {},
         resultsDepartements: {},
+        resultsCirconscriptions: {},
         selectedGeo: {},
         selectedLevel: ""
     },
@@ -16,6 +17,9 @@ export default new Vuex.Store({
         },
         setDepartements(state, value) {
             state.resultsDepartements = value;
+        },
+        setCirconscriptions(state, value) {
+            state.resultsCirconscriptions = value;
         },
         selectLevel(state, level) {
             state.selectedLevel = level;
@@ -30,12 +34,16 @@ export default new Vuex.Store({
                 return state.resultsCommunes[state.selectedGeo.codgeo];
             else if(state.selectedLevel == "departements")
                 return state.resultsDepartements[state.selectedGeo.dep];
+            else if(state.selectedLevel == "circonscriptions")
+                return state.resultsCirconscriptions[state.selectedGeo];
         },
         getResults: function(state) {
             if(state.selectedLevel == "communes")
                 return state.resultsCommunes;
             else if(state.selectedLevel == "departements")
                 return state.resultsDepartements;
+            else if(state.selectedLevel == "circonscriptions")
+                return state.resultsCirconscriptions;
         }
     }
 })
