@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <map-communes v-if="init" ref="map" />
+    <map-communes v-if="init" ref="map" :departements="departements"/>
     <tab-result :results-france="resultsFrance"/>
   </div>
 </template>
@@ -24,6 +24,7 @@ export default {
       resultsDepartements: {},
       resultsCirconscriptions: {},
       resultsFrance: [],
+      departements: {},
       init: false
     }
   },
@@ -63,6 +64,7 @@ export default {
     });
 
     d3.dsv(",", '/p2022-resultats-departement-t1.csv', (data) => {
+      that.departements[data["CodeDépartement"]] = data["Département"];
       that.resultsDepartements[data["CodeDépartement"]] = {
         "Arthaud": parseFloat(data["ARTHAUD.exp"]),
         "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),

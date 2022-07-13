@@ -24,11 +24,26 @@ export default {
   name: 'MapCommunes',
   store: myStore,
   props: {
+    departements: Object
   },
   data: function(){
     return {
       loading: false,
-      level: "departements"
+      level: "departements",
+      colorCandidate: {
+        "Macron": "#FF9F0E",
+        "Le Pen": "#802990",
+        "Mélenchon": "#942017",
+        "Zemmour": "#5543CC",
+        "Pécresse": "#16418B",
+        "Lassalle": "#B2B2B2",
+        "Jadot": "#02C001",
+        "Roussel": "#CB2A1E",
+        "Dupont-Aignan": "#163860",
+        "Hidalgo": "#F19999",
+        "Poutou": "#CB2A1E",
+        "Arthaud": "#CB2A1E"
+      }
     }
   },
   methods:{
@@ -78,7 +93,7 @@ export default {
                   .style("top", (pos.y) + "px");
           })
           .on("click", function(e){
-            that.$store.commit("selectGeo", e.properties);
+            that.$store.commit("selectGeo", {id: e.properties.codgeo, label: e.properties.libgeo });
           });
         that.update();  
 
@@ -111,13 +126,13 @@ export default {
       .attr("width", width)
       .attr("height", height);
 
-      const communes = svg.append("g");
+      const departements = svg.append("g");
       var promises = [];
       promises.push(d3.json('/a-dep2021.json'));
       Promise.all(promises).then(function(values) {
       var geojson = values[0];
 
-      communes.selectAll("path")
+      departements.selectAll("path")
         .data(geojson.features)
         .enter()
         .append("path")
@@ -132,13 +147,13 @@ export default {
             tooltip.transition()        
                 .duration(200)      
                 .style("opacity", .9);
-            tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.dep + ")<br/>"
+            tooltip.html( "<b>Département : </b>" + e.properties.libgeo + " (" + e.properties.dep + ")<br/>"
                         + "<b>Vainqueur : </b>" + that.$store.state.resultsDepartements[e.properties.dep].winner)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
           })
           .on("click", function(e){
-            that.$store.commit("selectGeo", e.properties);
+            that.$store.commit("selectGeo", {id: e.properties.dep, label: e.properties.libgeo });
           });
         that.update();  
 
@@ -184,22 +199,28 @@ export default {
         .attr('id', d => d.properties.code_dpt + "" + d.properties.num_circ.padStart(2, "0"))
         .attr("d", path);
 
-        // var tooltip = d3.select(".tooltip");
-        // d3.select('#map')
-        //   .selectAll("path")
-        //   .on("mouseover", function(e) {
-        //     var pos = d3.select(this).node().getBoundingClientRect();
-        //     tooltip.transition()        
-        //         .duration(200)      
-        //         .style("opacity", .9);
-        //     tooltip.html( "<b>Circonscription : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
-        //                 + "<b>Vainqueur : </b>" + that.$store.state.resultsCirconscriptions[e.properties.codgeo].winner)
-        //           .style("left", pos.x + 50 + "px")     
-        //           .style("top", (pos.y) + "px");
-        //   })
-        //   .on("click", function(e){
-        //     that.$store.commit("selectGeo", e.properties.code_dpt + e.properties.num_circ.padStart(2, "0"));
-        //   });
+        var tooltip = d3.select(".tooltip");
+        d3.select('#map')
+          .selectAll("path")
+          .on("mouseover", function(e) {
+            var pos = d3.select(this).node().getBoundingClientRect();
+            tooltip.transition()        
+                .duration(200)      
+                .style("opacity", .9);
+            var id = e.properties.code_dpt + e.properties.num_circ.padStart(2, "0");
+            tooltip.html( "<b>Circonscription : </b>" + e.properties.num_circ + "<sup>ème</sup> " + that.departements[e.properties.code_dpt] + "<br/>"
+                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCirconscriptions[id].winner)
+                  .style("left", pos.x + 50 + "px")     
+                  .style("top", (pos.y) + "px");
+          })
+          .on("click", function(e){
+            var id = e.properties.code_dpt + e.properties.num_circ.padStart(2, "0");
+            var label = e.properties.num_circ + "ème " + that.departements[e.properties.code_dpt];
+            that.$store.commit("selectGeo", {id: id, label: label });
+          })
+          .on("mouseout", function(){
+            tooltip.style("opacity", 0);
+          });
         that.update();  
 
         var zoom = d3.zoom()
@@ -222,13 +243,7 @@ export default {
             var codeGeo = that.getCodeGeo(d);
             var results = that.$store.getters.getResults;
             if(results[codeGeo] != null){
-              if(results[codeGeo].winner == "Macron")
-                return "#FF9F0E";
-              if(results[codeGeo].winner == "Le Pen")
-                return "#802990";
-              if(results[codeGeo].winner == "Mélenchon")
-                return "#942017";
-              return "blue";
+              return that.colorCandidate[results[codeGeo].winner];
             }
             notFound.push(codeGeo);
             return "grey";

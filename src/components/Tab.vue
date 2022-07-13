@@ -1,6 +1,6 @@
 <template>
   <div class="tab box-border text-center h-[500px] flex-1 shadow-lg">
-    <h2 class="text-xl mt-10">Résultats {{geo.libgeo}}</h2>
+    <h2 class="text-xl mt-10">Résultats {{geo.label}}</h2>
     <table id="tab-result">
       <thead>
         <th>Candidat</th>

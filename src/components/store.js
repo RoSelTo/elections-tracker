@@ -31,11 +31,11 @@ export default new Vuex.Store({
     getters: {
         resultsForGeo: function(state){
             if(state.selectedLevel == "communes")
-                return state.resultsCommunes[state.selectedGeo.codgeo];
+                return state.resultsCommunes[state.selectedGeo.id];
             else if(state.selectedLevel == "departements")
-                return state.resultsDepartements[state.selectedGeo.dep];
+                return state.resultsDepartements[state.selectedGeo.id];
             else if(state.selectedLevel == "circonscriptions")
-                return state.resultsCirconscriptions[state.selectedGeo];
+                return state.resultsCirconscriptions[state.selectedGeo.id];
         },
         getResults: function(state) {
             if(state.selectedLevel == "communes")
