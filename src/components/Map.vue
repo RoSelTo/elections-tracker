@@ -21,7 +21,7 @@ import myStore from './store.js'
 import * as d3 from 'd3'
 import * as topojson from 'topojson'
 export default {
-  name: 'MapCommunes',
+  name: 'MapComponent',
   store: myStore,
   props: {
     departements: Object

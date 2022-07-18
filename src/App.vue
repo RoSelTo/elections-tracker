@@ -1,20 +1,20 @@
 <template>
   <div id="app">
-    <map-communes v-if="init" ref="map" :departements="departements"/>
+    <map-component v-if="init" ref="map" :departements="departements"/>
     <tab-result :results-france="resultsFrance"/>
   </div>
 </template>
 
 <script>
 import myStore from './components/store.js'
-import MapCommunes from './components/Map.vue'
+import MapComponent from './components/Map.vue'
 import TabResult from './components/Tab.vue'
 import * as d3 from 'd3'
 
 export default {
   name: 'App',
   components: {
-    MapCommunes,
+    MapComponent,
     TabResult
   },
   store: myStore,
@@ -25,7 +25,8 @@ export default {
       resultsCirconscriptions: {},
       resultsFrance: [],
       departements: {},
-      init: false
+      init: false,
+      tour: "1"
     }
   },
   methods: {
@@ -37,6 +38,35 @@ export default {
     },
     toTitleCase: function(txt) {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    },
+    fixOutreMer: function(code, isCommune){
+      var dep = code.substring(0, 2);
+      switch(dep){
+        case "ZA":
+          return isCommune ? "97" + code.substring(2) : "971";
+        case "ZB":
+          return isCommune ? "97" + code.substring(2) : "972";
+        case "ZC":
+          return isCommune ? "97" + code.substring(2) : "973";
+        case "ZD":
+          return isCommune ? "97" + code.substring(2) : "974";
+        case "ZM":
+          return isCommune ? "97" + code.substring(2) : "976";
+        case "ZN":
+          return isCommune ? "98" + code.substring(2) : "988";
+        case "ZP":
+          return isCommune ? "98" + code.substring(2) : "987";
+        case "ZS":
+          return isCommune ? "97" + code.substring(2) : "975";
+        case "ZW":
+          return isCommune ? "98" + code.substring(2) : "986";
+        case "ZX":
+          return isCommune ? "97" + code.substring(2) : "977";
+        case "ZZ":
+          return "99";
+        default:
+          return code;
+      }
     }
   },
   mounted: function(){
@@ -46,7 +76,8 @@ export default {
     });
 
     d3.dsv(",", '/p2022-resultats-communes-t1.csv', (data) => {
-      that.resultsCommunes[data["CodeInsee"]] = {
+      var code = that.fixOutreMer(data["CodeInsee"], true);
+      that.resultsCommunes[code] = {
         "Arthaud": parseFloat(data["ARTHAUD.exp"]),
         "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
         "Hidalgo": parseFloat(data["HIDALGO.exp"]),
@@ -59,13 +90,14 @@ export default {
         "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
         "Zemmour": parseFloat(data["ZEMMOUR.exp"])
       };
-      that.setWinner(that.resultsCommunes[data["CodeInsee"]]);
+      that.setWinner(that.resultsCommunes[code]);
       that.init = true;
     });
 
     d3.dsv(",", '/p2022-resultats-departement-t1.csv', (data) => {
-      that.departements[data["CodeDépartement"]] = data["Département"];
-      that.resultsDepartements[data["CodeDépartement"]] = {
+      var code = that.fixOutreMer(data["CodeDépartement"], false);
+      that.departements[code] = data["Département"];
+      that.resultsDepartements[code] = {
         "Arthaud": parseFloat(data["ARTHAUD.exp"]),
         "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
         "Hidalgo": parseFloat(data["HIDALGO.exp"]),
@@ -78,7 +110,7 @@ export default {
         "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
         "Zemmour": parseFloat(data["ZEMMOUR.exp"])
       };
-      that.setWinner(that.resultsDepartements[data["CodeDépartement"]]);
+      that.setWinner(that.resultsDepartements[code]);
       that.init = true;
     });
 
