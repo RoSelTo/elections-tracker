@@ -1,5 +1,10 @@
 <template>
   <div id="app">
+    <h1 class="text-3xl w-full">Election présidentielle</h1>
+    <div class="flex justify-center space-x-4 w-full mb-5 mt-5">
+      <div :class="{'bg-orange-500': tour == '1', 'bg-blue-700': tour != '1'}" class="text-white px-5 py-3 font-bold cursor-pointer">1er tour</div>
+      <div :class="{'bg-orange-500': tour == '2', 'bg-blue-700': tour != '2'}" class="text-white px-5 py-3 font-bold cursor-pointer">2ème tour</div>
+    </div>
     <map-component v-if="init" ref="map" :departements="departements"/>
     <tab-result :results-france="resultsFrance"/>
   </div>
@@ -146,9 +151,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 40px;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 body {

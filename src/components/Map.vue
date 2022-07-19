@@ -1,6 +1,6 @@
 <template>
   <div class="map">
-    <div v-show="!loading" class="flex justify-center space-x-4">
+    <div class="flex justify-center space-x-4">
       <div :class="{'bg-orange-500': level == 'departements', 'bg-blue-700': level != 'departements'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
         v-on:click="createMapDepartements">Département</div>
       <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
@@ -9,7 +9,9 @@
         v-on:click="createMapCirconscriptions">Circonscription</div>
     </div>
     <!-- Add loading -->
-    <svg v-show="!loading" id="map" class="m-auto"></svg>
+    <div id="mapContainer" style="height:calc(100vh - 230px)" v-show="!loading">
+      <svg id="map" class="m-auto"></svg>
+    </div>
     <div class="tooltip">
     </div>
     <div v-if="loading" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
@@ -52,11 +54,12 @@ export default {
       that.loading = true; 
       that.level = "communes";
       that.$store.commit("selectLevel", that.level);
-      const width = 1000, height = 1000;
+      var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
+      const width = container, height = container;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
       .center([2.454071, 46.279229])
-      .scale(5000)
+      .scale(4000)
       .translate([width / 2, height / 2]);
       path.projection(projection);
 
@@ -113,11 +116,12 @@ export default {
       that.loading = true; 
       that.level = "departements";
       that.$store.commit("selectLevel", that.level);
-      const width = 1000, height = 1000;
+      var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
+      const width = container, height = container;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
       .center([2.454071, 46.279229])
-      .scale(5000)
+      .scale(4000)
       .translate([width / 2, height / 2]);
       path.projection(projection);
 
@@ -173,11 +177,12 @@ export default {
       that.loading = true; 
       that.level = "circonscriptions";
       that.$store.commit("selectLevel", that.level);
-      const width = 1000, height = 1000;
+      var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
+      const width = container, height = container;
       const path = d3.geoPath();
       const projection = d3.geoConicConformal()
       .center([2.454071, 46.279229])
-      .scale(5000)
+      .scale(4000)
       .translate([width / 2, height / 2]);
       path.projection(projection);
 
