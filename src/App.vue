@@ -2,10 +2,11 @@
   <div id="app">
     <h1 class="text-3xl w-full">Election présidentielle</h1>
     <div class="flex justify-center space-x-4 w-full mb-5 mt-5">
-      <div :class="{'bg-orange-500': tour == '1', 'bg-blue-700': tour != '1'}" class="text-white px-5 py-3 font-bold cursor-pointer">1er tour</div>
-      <div :class="{'bg-orange-500': tour == '2', 'bg-blue-700': tour != '2'}" class="text-white px-5 py-3 font-bold cursor-pointer">2ème tour</div>
+      <div :class="{'bg-orange-500': round == '1', 'bg-blue-700': round != '1'}" class="text-white px-5 py-3 font-bold cursor-pointer" v-on:click="getResultsRound1">1er tour</div>
+      <div :class="{'bg-orange-500': round == '2', 'bg-blue-700': round != '2'}" class="text-white px-5 py-3 font-bold cursor-pointer" v-on:click="getResultsRound2">2ème tour</div>
     </div>
-    <map-component v-if="init" ref="map" :departements="departements"/>
+    <div v-if="!init" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
+    <map-component v-if="init" ref="map" :departements="departements" :round="round"/>
     <tab-result :results-france="resultsFrance"/>
   </div>
 </template>
@@ -31,7 +32,7 @@ export default {
       resultsFrance: [],
       departements: {},
       init: false,
-      tour: "1"
+      round: "1"
     }
   },
   methods: {
@@ -72,74 +73,137 @@ export default {
         default:
           return code;
       }
+    },
+    getResultsRound1: function() {
+      var that = this;
+      if(that.round == "1" && that.init)
+        return;
+      that.round = "1";
+      d3.dsv(",", '/01-resultats-france-entiere.csv', (data) => {
+        that.resultsFrance.push({candidate: that.toTitleCase(data["cand_nom"]), percent: Math.round(data["cand_rapport_exprim"]*100)/100});
+      });
+
+      d3.dsv(",", '/p2022-resultats-communes-t1.csv', (data) => {
+        var code = that.fixOutreMer(data["CodeInsee"], true);
+        that.resultsCommunes[code] = {
+          "Arthaud": parseFloat(data["ARTHAUD.exp"]),
+          "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
+          "Hidalgo": parseFloat(data["HIDALGO.exp"]),
+          "Jadot": parseFloat(data["JADOT.exp"]),
+          "Lassalle": parseFloat(data["LASSALLE.exp"]),
+          "Le Pen": parseFloat(data["LE PEN.exp"]),
+          "Macron": parseFloat(data["MACRON.exp"]),
+          "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
+          "Poutou": parseFloat(data["POUTOU.exp"]),
+          "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
+          "Zemmour": parseFloat(data["ZEMMOUR.exp"])
+        };
+        that.setWinner(that.resultsCommunes[code]);
+      });
+
+      d3.dsv(",", '/p2022-resultats-departement-t1.csv', (data) => {
+        var code = that.fixOutreMer(data["CodeDépartement"], false);
+        that.departements[code] = data["Département"];
+        that.resultsDepartements[code] = {
+          "Arthaud": parseFloat(data["ARTHAUD.exp"]),
+          "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
+          "Hidalgo": parseFloat(data["HIDALGO.exp"]),
+          "Jadot": parseFloat(data["JADOT.exp"]),
+          "Lassalle": parseFloat(data["LASSALLE.exp"]),
+          "Le Pen": parseFloat(data["LE PEN.exp"]),
+          "Macron": parseFloat(data["MACRON.exp"]),
+          "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
+          "Poutou": parseFloat(data["POUTOU.exp"]),
+          "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
+          "Zemmour": parseFloat(data["ZEMMOUR.exp"])
+        };
+        that.setWinner(that.resultsDepartements[code]);
+      });
+
+      d3.dsv(",", '/p2022-resultats-circonscriptions-t1.csv', (data) => {
+        that.resultsCirconscriptions[data["CodeCirco"]] = {
+          "Arthaud": parseFloat(data["ARTHAUD.exp"]),
+          "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
+          "Hidalgo": parseFloat(data["HIDALGO.exp"]),
+          "Jadot": parseFloat(data["JADOT.exp"]),
+          "Lassalle": parseFloat(data["LASSALLE.exp"]),
+          "Le Pen": parseFloat(data["LE PEN.exp"]),
+          "Macron": parseFloat(data["MACRON.exp"]),
+          "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
+          "Poutou": parseFloat(data["POUTOU.exp"]),
+          "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
+          "Zemmour": parseFloat(data["ZEMMOUR.exp"])
+        };
+        that.setWinner(that.resultsCirconscriptions[data["CodeCirco"]]);
+      });
+
+      that.$store.commit("setCommunes", that.resultsCommunes);
+      that.$store.commit("setDepartements", that.resultsDepartements);
+      that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
+      that.init = true;
+    },
+    getResultsRound2: function() {
+      var that = this;
+      if(that.round == "2" && that.init)
+        return;
+      that.round = "2";
+      that.resultsFrance = [];
+      that.resultsDepartements = {};
+      d3.dsv(";", '/resultats-par-niveau-fe-t2-france-entiere.csv', (data) => {
+        that.resultsFrance.push({candidate: "Macron", percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))});
+        that.resultsFrance.push({candidate: "Le Pen", percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))});
+      });
+
+      // d3.dsv(",", '/p2022-resultats-communes-t1.csv', (data) => {
+      //   var code = that.fixOutreMer(data["CodeInsee"], true);
+      //   that.resultsCommunes[code] = {
+      //     "Arthaud": parseFloat(data["ARTHAUD.exp"]),
+      //     "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
+      //     "Hidalgo": parseFloat(data["HIDALGO.exp"]),
+      //     "Jadot": parseFloat(data["JADOT.exp"]),
+      //     "Lassalle": parseFloat(data["LASSALLE.exp"]),
+      //     "Le Pen": parseFloat(data["LE PEN.exp"]),
+      //     "Macron": parseFloat(data["MACRON.exp"]),
+      //     "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
+      //     "Poutou": parseFloat(data["POUTOU.exp"]),
+      //     "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
+      //     "Zemmour": parseFloat(data["ZEMMOUR.exp"])
+      //   };
+      //   that.setWinner(that.resultsCommunes[code]);
+      // });
+
+      d3.dsv(";", '/resultats-par-niveau-dpt-t2-france-entiere.csv', (data) => {
+        if(data["Code du département"] == undefined)
+          return;
+        var code = that.fixOutreMer(data["Code du département"], false);
+        that.departements[code] = data["Libellé du département"];
+        that.resultsDepartements[code] = {
+          "Macron": parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.')),
+          "Le Pen": parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))
+        };
+        that.setWinner(that.resultsDepartements[code]);
+      });
+
+      d3.dsv(";", '/resultats-par-niveau-cirlg-t2-france-entiere.csv', (data) => {
+        if(data["Code du département"] == undefined)
+          return;
+        var code = that.fixOutreMer(data["Code du département"], false) + data["Code de la circonscription"];
+        that.resultsCirconscriptions[code] = {
+          "Macron": parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.')),
+          "Le Pen": parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))
+        };
+        that.setWinner(that.resultsCirconscriptions[code]);
+      });
+
+      that.$store.commit("setCommunes", that.resultsCommunes);
+      that.$store.commit("setDepartements", that.resultsDepartements);
+      that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
+      that.init = true;
     }
   },
   mounted: function(){
     var that = this;
-    d3.dsv(",", '/01-resultats-france-entiere.csv', (data) => {
-      that.resultsFrance.push({candidate: that.toTitleCase(data["cand_nom"]), percent: Math.round(data["cand_rapport_exprim"]*100)/100});
-    });
-
-    d3.dsv(",", '/p2022-resultats-communes-t1.csv', (data) => {
-      var code = that.fixOutreMer(data["CodeInsee"], true);
-      that.resultsCommunes[code] = {
-        "Arthaud": parseFloat(data["ARTHAUD.exp"]),
-        "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
-        "Hidalgo": parseFloat(data["HIDALGO.exp"]),
-        "Jadot": parseFloat(data["JADOT.exp"]),
-        "Lassalle": parseFloat(data["LASSALLE.exp"]),
-        "Le Pen": parseFloat(data["LE PEN.exp"]),
-        "Macron": parseFloat(data["MACRON.exp"]),
-        "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
-        "Poutou": parseFloat(data["POUTOU.exp"]),
-        "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
-        "Zemmour": parseFloat(data["ZEMMOUR.exp"])
-      };
-      that.setWinner(that.resultsCommunes[code]);
-      that.init = true;
-    });
-
-    d3.dsv(",", '/p2022-resultats-departement-t1.csv', (data) => {
-      var code = that.fixOutreMer(data["CodeDépartement"], false);
-      that.departements[code] = data["Département"];
-      that.resultsDepartements[code] = {
-        "Arthaud": parseFloat(data["ARTHAUD.exp"]),
-        "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
-        "Hidalgo": parseFloat(data["HIDALGO.exp"]),
-        "Jadot": parseFloat(data["JADOT.exp"]),
-        "Lassalle": parseFloat(data["LASSALLE.exp"]),
-        "Le Pen": parseFloat(data["LE PEN.exp"]),
-        "Macron": parseFloat(data["MACRON.exp"]),
-        "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
-        "Poutou": parseFloat(data["POUTOU.exp"]),
-        "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
-        "Zemmour": parseFloat(data["ZEMMOUR.exp"])
-      };
-      that.setWinner(that.resultsDepartements[code]);
-      that.init = true;
-    });
-
-    d3.dsv(",", '/p2022-resultats-circonscriptions-t1.csv', (data) => {
-      that.resultsCirconscriptions[data["CodeCirco"]] = {
-        "Arthaud": parseFloat(data["ARTHAUD.exp"]),
-        "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
-        "Hidalgo": parseFloat(data["HIDALGO.exp"]),
-        "Jadot": parseFloat(data["JADOT.exp"]),
-        "Lassalle": parseFloat(data["LASSALLE.exp"]),
-        "Le Pen": parseFloat(data["LE PEN.exp"]),
-        "Macron": parseFloat(data["MACRON.exp"]),
-        "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
-        "Poutou": parseFloat(data["POUTOU.exp"]),
-        "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
-        "Zemmour": parseFloat(data["ZEMMOUR.exp"])
-      };
-      that.setWinner(that.resultsCirconscriptions[data["CodeCirco"]]);
-      that.init = true;
-    });
-
-    that.$store.commit("setCommunes", that.resultsCommunes);
-    that.$store.commit("setDepartements", that.resultsDepartements);
-    that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
+    that.getResultsRound1();
   }
 }
 </script>

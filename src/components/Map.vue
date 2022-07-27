@@ -26,12 +26,14 @@ export default {
   name: 'MapComponent',
   store: myStore,
   props: {
-    departements: Object
+    departements: Object,
+    round: String
   },
   data: function(){
     return {
       loading: false,
       level: "departements",
+      currentRound: "",
       colorCandidate: {
         "Macron": "#FF9F0E",
         "Le Pen": "#802990",
@@ -49,10 +51,19 @@ export default {
     }
   },
   methods:{
+    reloadMap: function(){
+      if(this.level == "communes")
+        this.createMapCommunes();
+      else if (this.level == "circonscriptions")
+        this.createMapCirconscriptions();
+      else if (this.level == "departements")
+        this.createMapDepartements();
+    },
     createMapCommunes: function(){
       var that = this;
       that.loading = true; 
       that.level = "communes";
+      that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
       var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
       const width = container, height = container;
@@ -115,6 +126,7 @@ export default {
       var that = this;
       that.loading = true; 
       that.level = "departements";
+      that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
       var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
       const width = container, height = container;
@@ -176,6 +188,7 @@ export default {
       var that = this;
       that.loading = true; 
       that.level = "circonscriptions";
+      that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
       var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
       const width = container, height = container;
@@ -270,6 +283,12 @@ export default {
   mounted: function(){
     this.createMapDepartements();
     window.map = this;
+  },
+  watch: {
+    round: function(){
+      if(this.round != this.currentRound)
+        this.reloadMap();
+    }
   }
 }
 </script>
