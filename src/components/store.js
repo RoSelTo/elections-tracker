@@ -30,6 +30,8 @@ export default new Vuex.Store({
     },
     getters: {
         resultsForGeo: function(state){
+            if(state.selectedGeo == null)
+                return null;
             if(state.selectedLevel == "communes")
                 return state.resultsCommunes[state.selectedGeo.id];
             else if(state.selectedLevel == "departements")

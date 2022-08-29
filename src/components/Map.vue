@@ -65,6 +65,7 @@ export default {
       that.level = "communes";
       that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
+      that.$store.commit("selectGeo", null);
       var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
       const width = container, height = container;
       const path = d3.geoPath();
@@ -128,6 +129,7 @@ export default {
       that.level = "departements";
       that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
+      that.$store.commit("selectGeo", null);
       var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
       const width = container, height = container;
       const path = d3.geoPath();
@@ -190,6 +192,7 @@ export default {
       that.level = "circonscriptions";
       that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
+      that.$store.commit("selectGeo", null);
       var container = d3.select("#mapContainer").node().getBoundingClientRect().height;
       const width = container, height = container;
       const path = d3.geoPath();

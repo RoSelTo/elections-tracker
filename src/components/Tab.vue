@@ -1,6 +1,7 @@
 <template>
   <div class="tab box-border text-center h-[500px] flex-1 shadow-lg">
-    <h2 class="text-xl mt-10">Résultats {{geo.label}}</h2>
+    <h2 v-if="geo != null" class="text-xl mt-10">Résultats {{geo.label}}</h2>
+    <h2 v-else class="text-xl mt-10">Résultats France</h2>
     <table id="tab-result">
       <thead>
         <th>Candidat</th>
@@ -35,7 +36,7 @@ export default {
       return this.$store.state.selectedGeo;
     },
     results: function(){
-        return this.$store.getters.resultsForGeo;
+      return this.$store.getters.resultsForGeo;
     },
     sortedResults: function(){
       var results = [];

@@ -154,24 +154,6 @@ export default {
         that.resultsFrance.push({candidate: "Le Pen", percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))});
       });
 
-      // d3.dsv(",", '/p2022-resultats-communes-t1.csv', (data) => {
-      //   var code = that.fixOutreMer(data["CodeInsee"], true);
-      //   that.resultsCommunes[code] = {
-      //     "Arthaud": parseFloat(data["ARTHAUD.exp"]),
-      //     "Dupont-Aignan": parseFloat(data["DUPONT-AIGNAN.exp"]),
-      //     "Hidalgo": parseFloat(data["HIDALGO.exp"]),
-      //     "Jadot": parseFloat(data["JADOT.exp"]),
-      //     "Lassalle": parseFloat(data["LASSALLE.exp"]),
-      //     "Le Pen": parseFloat(data["LE PEN.exp"]),
-      //     "Macron": parseFloat(data["MACRON.exp"]),
-      //     "Mélenchon": parseFloat(data["MÉLENCHON.exp"]),
-      //     "Poutou": parseFloat(data["POUTOU.exp"]),
-      //     "Pécresse": parseFloat(data["PÉCRESSE.exp"]),
-      //     "Zemmour": parseFloat(data["ZEMMOUR.exp"])
-      //   };
-      //   that.setWinner(that.resultsCommunes[code]);
-      // });
-
       d3.dsv(";", '/resultats-par-niveau-dpt-t2-france-entiere.csv', (data) => {
         if(data["Code du département"] == undefined)
           return;
