@@ -27,13 +27,15 @@ export default {
   store: myStore,
   props: {
     departements: Object,
-    round: String
+    round: String,
+    selectedElec: String
   },
   data: function(){
     return {
       loading: false,
       level: "departements",
       currentRound: "",
+      currentElec: "",
       colorCandidate: {
         "Macron": "#FF9F0E",
         "Le Pen": "#802990",
@@ -46,7 +48,22 @@ export default {
         "Dupont-Aignan": "#163860",
         "Hidalgo": "#F19999",
         "Poutou": "#CB2A1E",
-        "Arthaud": "#CB2A1E"
+        "Arthaud": "#CB2A1E",
+        "Ensemble": "#FF9F0E",
+        "Divers centre": "#FF9F0E",
+        "RN": "#802990",
+        "Divers extrême droite": "#802990",
+        "NUPES": "#942017",
+        "Reconquête": "#5543CC",
+        "UDI": "#16418B",
+        "LR": "#16418B",
+        "Divers droite": "#16418B",
+        "Régionalistes": "#B2B2B2",
+        "Droite souverainiste": "#163860",
+        "Radical de gauche": "#F19999",
+        "Divers gauche": "#F19999",
+        "Divers extrême gauche": "#CB2A1E",
+        "Ecologistes": "#02C001",
       }
     }
   },
@@ -63,6 +80,7 @@ export default {
       var that = this;
       that.loading = true; 
       that.level = "communes";
+      this.currentElec = this.selectedElec;
       that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
       that.$store.commit("selectGeo", null);
@@ -127,6 +145,7 @@ export default {
       var that = this;
       that.loading = true; 
       that.level = "departements";
+      this.currentElec = this.selectedElec;
       that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
       that.$store.commit("selectGeo", null);
@@ -190,6 +209,7 @@ export default {
       var that = this;
       that.loading = true; 
       that.level = "circonscriptions";
+      this.currentElec = this.selectedElec;
       that.currentRound = this.round;
       that.$store.commit("selectLevel", that.level);
       that.$store.commit("selectGeo", null);
@@ -279,8 +299,8 @@ export default {
         return level.properties.dep;
       else if (that.level == "circonscriptions" && level.properties.num_circ != null)
         return level.properties.code_dpt + level.properties.num_circ.padStart(2, "0");
-      else
-        console.log(level.properties);
+      // else
+      //   console.log(level.properties);
     }
   },
   mounted: function(){
@@ -290,6 +310,10 @@ export default {
   watch: {
     round: function(){
       if(this.round != this.currentRound)
+        this.reloadMap();
+    },
+    selectedElec: function(){
+      if(this.selectedElec != this.currentElec)
         this.reloadMap();
     }
   }
