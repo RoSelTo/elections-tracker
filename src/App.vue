@@ -78,9 +78,9 @@ export default {
           return code;
       }
     },
-    getResultsRound1: function() {
+    getPresidentielleRound1: function() {
       var that = this;
-      if(that.round == "1" && that.init)
+      if(that.round == "1" && that.selectedElec === "presidentielle2022" && that.init)
         return;
       that.round = "1";
       d3.dsv(",", '/presidentielle/01-resultats-france-entiere.csv', (data) => {
@@ -146,9 +146,9 @@ export default {
       that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
       that.init = true;
     },
-    getResultsRound2: function() {
+    getPresidentielleRound2: function() {
       var that = this;
-      if(that.round == "2" && that.init)
+      if(that.round == "2" && that.selectedElec === "presidentielle2022" && that.init)
         return;
       that.round = "2";
       that.resultsFrance = [];
@@ -187,15 +187,27 @@ export default {
       that.init = true;
     },
     loadPresidentielle: function(){
-      this.getResultsRound1();
+      this.getPresidentielleRound1();
     },
     loadLegislatives: function(){
       this.getLegislativesRound1();
     },
+    getResultsRound1: function(){
+      if(this.selectedElec === "presidentielle2022")
+        this.getPresidentielleRound1();
+      else if(this.selectedElec === "legislatives2022")
+        this.getLegislativesRound1();
+    },
+    getResultsRound2: function(){
+      if(this.selectedElec === "presidentielle2022")
+        this.getPresidentielleRound2();
+      else if(this.selectedElec === "legislatives2022")
+        this.getLegislativesRound2();
+    },
     getLegislativesRound1: function(){
       var that = this;
-      // if(that.round == "1" && that.init)
-      //  return;
+      if(that.round == "1" && that.selectedElec === "legislatives2022" && that.init)
+        return;
       that.round = "1";
       that.resultsFrance = [];
       that.resultsDepartements = {};
@@ -242,6 +254,69 @@ export default {
       });
 
       custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-cirlg-t1-leg.csv'), (data, i) => {
+        if(i > 0){
+          if(data[0] == undefined)
+            return;
+          var code = that.fixOutreMer(data[0], false) + data[2];
+          that.resultsCirconscriptions[code] = {};
+          for(var col = 23; col <= data.length - 4; col = col + 9){
+             that.resultsCirconscriptions[code][that.readableParty(data[col])] = parseFloat(data[col + 3].replace(',', '.'));
+          }
+          that.setWinner(that.resultsCirconscriptions[code]);
+        }
+      });
+
+      that.$store.commit("setCommunes", that.resultsCommunes);
+      that.$store.commit("setDepartements", that.resultsDepartements);
+      that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
+      that.init = true;
+    },
+    getLegislativesRound2: function(){
+      var that = this;
+      if(that.round == "2" && that.selectedElec === "legislatives2022" && that.init)
+        return;
+      that.round = "2";
+      that.resultsFrance = [];
+      that.resultsDepartements = {};
+      d3.dsv(";", '/legislatives/resultats-par-niveau-fe-t2-leg.csv', (data) => {
+        that.resultsFrance.push({candidate: "Ensemble", percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: data["ENS.Sièges"]});
+        that.resultsFrance.push({candidate: "NUPES", percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: data["NUP.Sièges"]});
+        that.resultsFrance.push({candidate: "Divers extrême gauche", percent: parseFloat(data["DXG.% Voix/Exp"].replace(',', '.')), sieges: data["DXG.Sièges"]});
+        that.resultsFrance.push({candidate: "Divers gauche", percent: parseFloat(data["DVG.% Voix/Exp"].replace(',', '.')), sieges: data["DVG.Sièges"]});
+        that.resultsFrance.push({candidate: "Divers", percent: parseFloat(data["DIV.% Voix/Exp"].replace(',', '.')), sieges: data["DIV.Sièges"]});
+        that.resultsFrance.push({candidate: "Régionalistes", percent: parseFloat(data["REG.% Voix/Exp"].replace(',', '.')), sieges: data["REG.Sièges"]});
+        that.resultsFrance.push({candidate: "Divers centre", percent: parseFloat(data["DVC.% Voix/Exp"].replace(',', '.')), sieges: data["DVC.Sièges"]});
+        that.resultsFrance.push({candidate: "UDI", percent: parseFloat(data["UDI.% Voix/Exp"].replace(',', '.')), sieges: data["UDI.Sièges"]});
+        that.resultsFrance.push({candidate: "LR", percent: parseFloat(data["LR.% Voix/Exp"].replace(',', '.')), sieges: data["LR.Sièges"]});
+        that.resultsFrance.push({candidate: "Divers droite", percent: parseFloat(data["DVD.% Voix/Exp"].replace(',', '.')), sieges: data["DVD.Sièges"]});
+        that.resultsFrance.push({candidate: "Droite souverainiste", percent: parseFloat(data["DSV.% Voix/Exp"].replace(',', '.')), sieges: data["DSV.Sièges"]});
+        that.resultsFrance.push({candidate: "RN", percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: data["RN.Sièges"]});
+      });
+
+      const custom = d3.dsvFormat(";");
+      custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-subcom-t2-leg.csv'), (data, i) => {
+        if(i > 0){
+          var code = that.fixOutreMer(data[0] + "" + data[4], true);
+          that.resultsCommunes[code] = {};
+          for(var col = 25; col <= data.length - 4; col = col + 8){
+             that.resultsCommunes[code][that.readableParty(data[col])] = parseFloat(data[col + 3].replace(',', '.'));
+          }
+          that.setWinner(that.resultsCommunes[code]);
+        }
+      });
+
+      custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-dpt-t2-leg.csv'), (data, i) => {
+        if(i > 0){
+          var code = that.fixOutreMer(data[0], false);
+          that.resultsDepartements[code] = {};
+          for(var col = 17; col <= data.length - 5; col = col + 5){
+             that.resultsDepartements[code][that.readableParty(data[col])] = parseFloat(data[col + 3].replace(',', '.'));
+          }
+          that.setWinner(that.resultsDepartements[code]);
+        }
+      });
+
+      custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-cirlg-t2-leg.csv'), (data, i) => {
         if(i > 0){
           if(data[0] == undefined)
             return;
