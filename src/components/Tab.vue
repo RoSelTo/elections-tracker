@@ -11,6 +11,7 @@
         <tr v-for="result in sortedResults" :key="result.candidate">
           <td>{{result.candidate}}</td>
           <td>{{result.percent}}</td>
+          <td v-if="result.sieges != null">{{result.sieges}}</td>
         </tr>
       </tbody>
     </table>
