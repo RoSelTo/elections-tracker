@@ -1,5 +1,5 @@
 <template>
-  <div class="tab box-border text-center h-[500px] flex-1 shadow-lg">
+  <div class="tab box-border text-center h-fit pb-[20px] flex-1 shadow-lg">
     <h2 v-if="geo != null" class="text-xl mt-10">Résultats {{geo.label}}</h2>
     <h2 v-else class="text-xl mt-10">Résultats France</h2>
     <table id="tab-result">
