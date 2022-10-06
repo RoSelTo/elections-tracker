@@ -104,7 +104,7 @@ export default {
       Promise.all(promises).then(function(values) {
       var topology = values[0];
       var ps = topojson.presimplify(topology);
-      var s = topojson.simplify(ps, 0.0001);
+      var s = topojson.simplify(ps, 0.001);
       var geojson = topojson.feature(s, topology.objects.a_com2022);
 
       communes.selectAll("path")
