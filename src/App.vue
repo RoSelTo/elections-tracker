@@ -211,6 +211,7 @@ export default {
       that.round = "1";
       that.resultsFrance = [];
       that.resultsDepartements = {};
+      that.resultsCommunes = {};
       d3.dsv(";", '/legislatives/resultats-par-niveau-fe-t1-leg.csv', (data) => {
         that.resultsFrance.push({candidate: "Ensemble", percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: data["ENS.Sièges"]});
         that.resultsFrance.push({candidate: "NUPES", percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: data["NUP.Sièges"]});
@@ -278,6 +279,7 @@ export default {
       that.round = "2";
       that.resultsFrance = [];
       that.resultsDepartements = {};
+      that.resultsCommunes = {};
       d3.dsv(";", '/legislatives/resultats-par-niveau-fe-t2-leg.csv', (data) => {
         that.resultsFrance.push({candidate: "Ensemble", percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: data["ENS.Sièges"]});
         that.resultsFrance.push({candidate: "NUPES", percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: data["NUP.Sièges"]});
@@ -387,6 +389,7 @@ export default {
   },
   watch: {
     selectedElec: function(){
+      this.init = false;
       if(this.selectedElec == "legislatives2022")
         this.loadLegislatives();
       else if(this.selectedElec == "presidentielle2022")

@@ -103,7 +103,9 @@ export default {
       promises.push(d3.json('/a-com2022-topo.json'));
       Promise.all(promises).then(function(values) {
       var topology = values[0];
-      var geojson = topojson.feature(topology, topology.objects.a_com2022);
+      var ps = topojson.presimplify(topology);
+      var s = topojson.simplify(ps, 0.0001);
+      var geojson = topojson.feature(s, topology.objects.a_com2022);
 
       communes.selectAll("path")
         .data(geojson.features)
