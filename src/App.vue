@@ -78,6 +78,16 @@ export default {
           return code;
       }
     },
+    getStats: function(results){
+      var stats = {};
+      Object.keys(results).forEach(function(geo){
+        if(stats[results[geo].winner] != null)
+          stats[results[geo].winner]++;
+        else
+          stats[results[geo].winner] = 1;
+      });
+      return stats;
+    },
     getPresidentielleRound1: function() {
       var that = this;
       if(that.round == "1" && that.selectedElec === "presidentielle2022" && that.init)
@@ -104,6 +114,9 @@ export default {
           "Zemmour": parseFloat(data["ZEMMOUR.exp"])
         };
         that.setWinner(that.resultsCommunes[code]);
+      }).then(() => {
+        that.$store.commit("setStats", { geo: "communes", stats: that.getStats(that.resultsCommunes)});
+        that.$store.commit("setCommunes", that.resultsCommunes);
       });
 
       d3.dsv(",", '/presidentielle/p2022-resultats-departement-t1.csv', (data) => {
@@ -123,6 +136,9 @@ export default {
           "Zemmour": parseFloat(data["ZEMMOUR.exp"])
         };
         that.setWinner(that.resultsDepartements[code]);
+      }).then(() => {
+        that.$store.commit("setStats", { geo: "departements", stats: that.getStats(that.resultsDepartements)});
+        that.$store.commit("setDepartements", that.resultsDepartements);
       });
 
       d3.dsv(",", '/presidentielle/p2022-resultats-circonscriptions-t1.csv', (data) => {
@@ -140,11 +156,11 @@ export default {
           "Zemmour": parseFloat(data["ZEMMOUR.exp"])
         };
         that.setWinner(that.resultsCirconscriptions[data["CodeCirco"]]);
+      }).then(() => {
+        that.$store.commit("setStats", { geo: "circonscriptions", stats: that.getStats(that.resultsCirconscriptions)});
+        that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
       });
 
-      that.$store.commit("setCommunes", that.resultsCommunes);
-      that.$store.commit("setDepartements", that.resultsDepartements);
-      that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
       that.init = true;
     },
     getPresidentielleRound2: function() {
@@ -154,9 +170,25 @@ export default {
       that.round = "2";
       that.resultsFrance = [];
       that.resultsDepartements = {};
+      that.resultsCommunes = {};
       d3.dsv(";", '/presidentielle/resultats-par-niveau-fe-t2-france-entiere.csv', (data) => {
         that.resultsFrance.push({candidate: "Macron", percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))});
         that.resultsFrance.push({candidate: "Le Pen", percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))});
+      });
+
+      d3.dsv(";", '/presidentielle/resultats-par-niveau-subcom-t2-france-entiere.csv', (data) => {
+        if(data["Code du département"] == undefined)
+          return;
+        var code = that.fixOutreMer(data["Code du département"], false) + "" + data["Code de la commune"];
+        that.resultsCommunes[code] = {
+          "Macron": parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.')),
+          "Le Pen": parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))
+        };
+        that.setWinner(that.resultsCommunes[code]);
+      }).then(() => {
+        that.$store.commit("setStats", { geo: "communes", stats: that.getStats(that.resultsCommunes)});
+        that.$store.commit("setCommunes", that.resultsCommunes);
+        that.init = true;
       });
 
       d3.dsv(";", '/presidentielle/resultats-par-niveau-dpt-t2-france-entiere.csv', (data) => {
@@ -169,6 +201,9 @@ export default {
           "Le Pen": parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))
         };
         that.setWinner(that.resultsDepartements[code]);
+      }).then(() => {
+        that.$store.commit("setStats", { geo: "departements", stats: that.getStats(that.resultsDepartements)});
+        that.$store.commit("setDepartements", that.resultsDepartements);
       });
 
       d3.dsv(";", '/presidentielle/resultats-par-niveau-cirlg-t2-france-entiere.csv', (data) => {
@@ -180,12 +215,10 @@ export default {
           "Le Pen": parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))
         };
         that.setWinner(that.resultsCirconscriptions[code]);
+      }).then(() => {
+        that.$store.commit("setStats", { geo: "circonscriptions", stats: that.getStats(that.resultsCirconscriptions)});
+        that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
       });
-
-      that.$store.commit("setCommunes", that.resultsCommunes);
-      that.$store.commit("setDepartements", that.resultsDepartements);
-      that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
-      that.init = true;
     },
     loadPresidentielle: function(){
       this.getPresidentielleRound1();

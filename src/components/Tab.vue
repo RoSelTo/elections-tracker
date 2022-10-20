@@ -5,7 +5,8 @@
     <table id="tab-result">
       <thead>
         <th>Candidat</th>
-        <th>Pourcentage voix exprimés</th>
+        <th>% voix exprimés</th>
+        <th v-if="sortedResults[0].sieges != null">Sièges</th>
       </thead>
       <tbody>
         <tr v-for="result in sortedResults" :key="result.candidate">

@@ -97,7 +97,7 @@ export default {
       const svg = d3.select('#map')
       .attr("width", width)
       .attr("height", height);
-
+      
       const communes = svg.append("g");
       var promises = [];
       promises.push(d3.json('/a-com2022-topo.json'));
@@ -129,6 +129,9 @@ export default {
           })
           .on("click", function(e){
             that.$store.commit("selectGeo", {id: e.properties.codgeo, label: e.properties.libgeo });
+          })
+          .on("mouseout", function(){
+            tooltip.style("opacity", 0);
           });
         that.update();  
 
@@ -193,6 +196,9 @@ export default {
           })
           .on("click", function(e){
             that.$store.commit("selectGeo", {id: e.properties.dep, label: e.properties.libgeo });
+          })
+          .on("mouseout", function(){
+            tooltip.style("opacity", 0);
           });
         that.update();  
 

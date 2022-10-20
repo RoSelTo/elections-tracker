@@ -9,7 +9,12 @@ export default new Vuex.Store({
         resultsDepartements: {},
         resultsCirconscriptions: {},
         selectedGeo: {},
-        selectedLevel: ""
+        selectedLevel: "",
+        stats: {
+            communes:{},
+            departements: {},
+            circonscriptions: {}
+        }
     },
     mutations: {
         setCommunes(state, value) {
@@ -26,6 +31,9 @@ export default new Vuex.Store({
         },
         selectGeo(state, geo) {
             state.selectedGeo = geo;
+        },
+        setStats(state, payload) {
+            state.stats[payload.geo] = payload.stats;
         }
     },
     getters: {
