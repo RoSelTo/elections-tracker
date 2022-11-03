@@ -14,6 +14,7 @@
     "topojson-simplify": "^3.0.3",
     "vue": "^2.6.14",
     "vue-devtools": "^5.1.4",
+    "vue-google-charts": "^1.1.0",
     "vuex": "3.6.2"
   },
   "devDependencies": {

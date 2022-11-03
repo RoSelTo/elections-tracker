@@ -6,7 +6,7 @@
       <thead>
         <th>Candidat</th>
         <th>% voix exprimés</th>
-        <th v-if="sortedResults[0].sieges != null">Sièges</th>
+        <th v-if="sortedResults[0] != null && sortedResults[0].sieges != null">Sièges</th>
       </thead>
       <tbody>
         <tr v-for="result in sortedResults" :key="result.candidate">
@@ -16,21 +16,36 @@
         </tr>
       </tbody>
     </table>
+    <GChart v-if="sortedResults[0] != null && sortedResults[0].sieges != null"
+        type="PieChart"
+        :data="chartData"
+        :options="chartOptions"
+      />
   </div>
 </template>
 
 <script>
 import myStore from './store.js'
+import { GChart } from 'vue-google-charts/legacy'
 
 export default {
   name: 'TabResult',
   store: myStore,
+  components: {
+    GChart
+  },
   props: {
     resultsFrance: Array
   },
   data: function(){
     return {
-      loading: true
+      loading: true,
+      chartOptions: {
+        pieHole: 0.4,
+        backgroundColor: "#f3f2ef",
+        width: 600,
+        height: 400,
+      }
     }
   },
   computed: {
@@ -50,6 +65,16 @@ export default {
         })
       }
       return results.sort((a,b) => b.percent - a.percent);
+    },
+    chartData: function(){
+      var chartData = [];
+      chartData.push(["Parti", "Sièges"]);
+      if(this.sortedResults[0] != null && this.sortedResults[0].sieges != null){
+        this.sortedResults.forEach(element => {
+          chartData.push([element.candidate, element.sieges]);
+        });
+      }
+      return chartData;
     }
   }
 }
