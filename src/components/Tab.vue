@@ -61,7 +61,10 @@ export default {
         results = this.resultsFrance;
       } else {
         Object.keys(this.results).filter(k => k != "winner").forEach(k => {
-          results.push({candidate: k, percent: Math.round(this.results[k]*100)/100});
+          var result = {candidate: k, percent: Math.round(this.results[k].percent*100)/100};
+          if(this.results[k].sieges != null)
+            result.sieges = this.results[k].sieges;
+          results.push(result);
         })
       }
       return results.sort((a,b) => b.percent - a.percent);
