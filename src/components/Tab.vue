@@ -41,10 +41,45 @@ export default {
     return {
       loading: true,
       chartOptions: {
+        title: "Répartition des sièges",
+        titleTextStyle: {
+            fontName: "Arial",
+            fontSize: 18
+        },
         pieHole: 0.4,
         backgroundColor: "#f3f2ef",
-        width: 600,
+        width: "100%",
         height: 400,
+        colors: []
+      },
+      colorCandidate: {
+        "Macron": "#FF9F0E",
+        "Le Pen": "#802990",
+        "Mélenchon": "#942017",
+        "Zemmour": "#5543CC",
+        "Pécresse": "#16418B",
+        "Lassalle": "#B2B2B2",
+        "Jadot": "#02C001",
+        "Roussel": "#CB2A1E",
+        "Dupont-Aignan": "#163860",
+        "Hidalgo": "#F19999",
+        "Poutou": "#CB2A1E",
+        "Arthaud": "#CB2A1E",
+        "Ensemble": "#FF9F0E",
+        "Divers centre": "#FF9F0E",
+        "RN": "#802990",
+        "Divers extrême droite": "#802990",
+        "NUPES": "#942017",
+        "Reconquête": "#5543CC",
+        "UDI": "#16418B",
+        "LR": "#16418B",
+        "Divers droite": "#16418B",
+        "Régionalistes": "#B2B2B2",
+        "Droite souverainiste": "#163860",
+        "Radical de gauche": "#F19999",
+        "Divers gauche": "#F19999",
+        "Divers extrême gauche": "#CB2A1E",
+        "Ecologistes": "#02C001",
       }
     }
   },
@@ -70,11 +105,14 @@ export default {
       return results.sort((a,b) => b.percent - a.percent);
     },
     chartData: function(){
+      var that = this;
       var chartData = [];
       chartData.push(["Parti", "Sièges"]);
+      that.chartOptions.color = [];
       if(this.sortedResults[0] != null && this.sortedResults[0].sieges != null){
         this.sortedResults.forEach(element => {
           chartData.push([element.candidate, element.sieges]);
+          that.chartOptions.colors.push(that.colorCandidate[element.candidate] != null ? that.colorCandidate[element.candidate] : "grey");
         });
       }
       return chartData;
