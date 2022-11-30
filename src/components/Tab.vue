@@ -95,10 +95,10 @@ export default {
       if(!this.results) {
         results = this.resultsFrance;
       } else {
-        Object.keys(this.results).filter(k => k != "winner").forEach(k => {
-          var result = {candidate: k, percent: Math.round(this.results[k].percent*100)/100};
-          if(this.results[k].sieges != null)
-            result.sieges = this.results[k].sieges;
+        Object.keys(this.results.data).forEach(k => {
+          var result = {candidate: k, percent: Math.round(this.results.data[k].percent*100)/100};
+          if(this.results.data[k].sieges != null)
+            result.sieges = this.results.data[k].sieges;
           results.push(result);
         })
       }

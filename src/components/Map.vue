@@ -1,12 +1,22 @@
 <template>
   <div class="map">
     <div class="flex justify-center space-x-4">
-      <div :class="{'bg-orange-500': level == 'departements', 'bg-blue-700': level != 'departements'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
+      <div :class="{'bg-orange-500': level == 'departements', 'bg-blue-700': level != 'departements'}" class="text-white px-5 py-3 cursor-pointer" 
         v-on:click="createMapDepartements">Département</div>
-      <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
+      <div :class="{'bg-orange-500': level == 'communes', 'bg-blue-700': level != 'communes'}" class="text-white px-5 py-3 cursor-pointer" 
         v-on:click="createMapCommunes">Commune</div>
-      <div :class="{'bg-orange-500': level == 'circonscriptions', 'bg-blue-700': level != 'circonscriptions'}" class="text-white px-5 py-3 font-bold cursor-pointer" 
+      <div :class="{'bg-orange-500': level == 'circonscriptions', 'bg-blue-700': level != 'circonscriptions'}" class="text-white px-5 py-3 cursor-pointer" 
         v-on:click="createMapCirconscriptions">Circonscription</div>
+    </div>
+    <div class="flex justify-center space-x-4">
+      <div class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 
+        font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800">
+        Résultats
+      </div>
+      <div class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg 
+      text-sm px-5 py-2.5 text-center mt-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800">
+        Abstention
+      </div>
     </div>
     <!-- Add loading -->
     <div id="mapContainer" style="height:calc(100vh - 230px)" v-show="!loading">

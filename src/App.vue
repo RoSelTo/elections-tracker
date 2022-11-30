@@ -33,6 +33,7 @@ export default {
       resultsDepartements: {},
       resultsCirconscriptions: {},
       resultsFrance: [],
+      abstentionFrance: 0,
       departements: {},
       init: false,
       round: "1",
@@ -41,7 +42,7 @@ export default {
   },
   methods: {
     setWinner: function(results){
-      var winner = Object.keys(results).reduce((a, b) => results[a].percent > results[b].percent ? a : b);
+      var winner = Object.keys(results.data).reduce((a, b) => results.data[a].percent > results.data[b].percent ? a : b);
       if(winner == null)
         console.log(results);
       results.winner = winner;
@@ -96,22 +97,26 @@ export default {
       that.resultsFrance = [];
       d3.dsv(",", '/presidentielle/01-resultats-france-entiere.csv', (data) => {
         that.resultsFrance.push({candidate: that.toTitleCase(data["cand_nom"]), percent: Math.round(data["cand_rapport_exprim"]*100)/100});
+        that.abstentionFrance = parseFloat(data["abstention_pourc"]);
       });
 
       d3.dsv(",", '/presidentielle/p2022-resultats-communes-t1.csv', (data) => {
         var code = that.fixOutreMer(data["CodeInsee"], true);
-        that.resultsCommunes[code] = {
-          "Arthaud": {percent: parseFloat(data["ARTHAUD.exp"])},
-          "Dupont-Aignan": {percent: parseFloat(data["DUPONT-AIGNAN.exp"])},
-          "Hidalgo": {percent: parseFloat(data["HIDALGO.exp"])},
-          "Jadot": {percent: parseFloat(data["JADOT.exp"])},
-          "Lassalle": {percent: parseFloat(data["LASSALLE.exp"])},
-          "Le Pen": {percent: parseFloat(data["LE PEN.exp"])},
-          "Macron": {percent: parseFloat(data["MACRON.exp"])},
-          "Mélenchon": {percent: parseFloat(data["MÉLENCHON.exp"])},
-          "Poutou": {percent: parseFloat(data["POUTOU.exp"])},
-          "Pécresse": {percent: parseFloat(data["PÉCRESSE.exp"])},
-          "Zemmour": {percent: parseFloat(data["ZEMMOUR.exp"])}
+        that.resultsCommunes[code] = { 
+          data: {
+            "Arthaud": {percent: parseFloat(data["ARTHAUD.exp"])},
+            "Dupont-Aignan": {percent: parseFloat(data["DUPONT-AIGNAN.exp"])},
+            "Hidalgo": {percent: parseFloat(data["HIDALGO.exp"])},
+            "Jadot": {percent: parseFloat(data["JADOT.exp"])},
+            "Lassalle": {percent: parseFloat(data["LASSALLE.exp"])},
+            "Le Pen": {percent: parseFloat(data["LE PEN.exp"])},
+            "Macron": {percent: parseFloat(data["MACRON.exp"])},
+            "Mélenchon": {percent: parseFloat(data["MÉLENCHON.exp"])},
+            "Poutou": {percent: parseFloat(data["POUTOU.exp"])},
+            "Pécresse": {percent: parseFloat(data["PÉCRESSE.exp"])},
+            "Zemmour": {percent: parseFloat(data["ZEMMOUR.exp"])}
+          },
+          abstention: parseFloat(data["Abstentions_ins"])
         };
         that.setWinner(that.resultsCommunes[code]);
       }).then(() => {
@@ -123,17 +128,20 @@ export default {
         var code = that.fixOutreMer(data["CodeDépartement"], false);
         that.departements[code] = data["Département"];
         that.resultsDepartements[code] = {
-          "Arthaud":  {percent: parseFloat(data["ARTHAUD.exp"])},
-          "Dupont-Aignan": {percent: parseFloat(data["DUPONT-AIGNAN.exp"])},
-          "Hidalgo": {percent: parseFloat(data["HIDALGO.exp"])},
-          "Jadot": {percent: parseFloat(data["JADOT.exp"])},
-          "Lassalle": {percent: parseFloat(data["LASSALLE.exp"])},
-          "Le Pen": {percent: parseFloat(data["LE PEN.exp"])},
-          "Macron": {percent: parseFloat(data["MACRON.exp"])},
-          "Mélenchon": {percent: parseFloat(data["MÉLENCHON.exp"])},
-          "Poutou": {percent: parseFloat(data["POUTOU.exp"])},
-          "Pécresse": {percent: parseFloat(data["PÉCRESSE.exp"])},
-          "Zemmour": {percent: parseFloat(data["ZEMMOUR.exp"])}
+          data: {
+            "Arthaud":  {percent: parseFloat(data["ARTHAUD.exp"])},
+            "Dupont-Aignan": {percent: parseFloat(data["DUPONT-AIGNAN.exp"])},
+            "Hidalgo": {percent: parseFloat(data["HIDALGO.exp"])},
+            "Jadot": {percent: parseFloat(data["JADOT.exp"])},
+            "Lassalle": {percent: parseFloat(data["LASSALLE.exp"])},
+            "Le Pen": {percent: parseFloat(data["LE PEN.exp"])},
+            "Macron": {percent: parseFloat(data["MACRON.exp"])},
+            "Mélenchon": {percent: parseFloat(data["MÉLENCHON.exp"])},
+            "Poutou": {percent: parseFloat(data["POUTOU.exp"])},
+            "Pécresse": {percent: parseFloat(data["PÉCRESSE.exp"])},
+            "Zemmour": {percent: parseFloat(data["ZEMMOUR.exp"])}
+          },
+          abstention: parseFloat(data["Abstentions_ins"])
         };
         that.setWinner(that.resultsDepartements[code]);
       }).then(() => {
@@ -143,17 +151,20 @@ export default {
 
       d3.dsv(",", '/presidentielle/p2022-resultats-circonscriptions-t1.csv', (data) => {
         that.resultsCirconscriptions[data["CodeCirco"]] = {
-          "Arthaud": {percent: parseFloat(data["ARTHAUD.exp"])},
-          "Dupont-Aignan": {percent: parseFloat(data["DUPONT-AIGNAN.exp"])},
-          "Hidalgo": {percent: parseFloat(data["HIDALGO.exp"])},
-          "Jadot": {percent: parseFloat(data["JADOT.exp"])},
-          "Lassalle": {percent: parseFloat(data["LASSALLE.exp"])},
-          "Le Pen": {percent: parseFloat(data["LE PEN.exp"])},
-          "Macron": {percent: parseFloat(data["MACRON.exp"])},
-          "Mélenchon": {percent: parseFloat(data["MÉLENCHON.exp"])},
-          "Poutou": {percent: parseFloat(data["POUTOU.exp"])},
-          "Pécresse": {percent: parseFloat(data["PÉCRESSE.exp"])},
-          "Zemmour": {percent: parseFloat(data["ZEMMOUR.exp"])}
+          data: {
+            "Arthaud": {percent: parseFloat(data["ARTHAUD.exp"])},
+            "Dupont-Aignan": {percent: parseFloat(data["DUPONT-AIGNAN.exp"])},
+            "Hidalgo": {percent: parseFloat(data["HIDALGO.exp"])},
+            "Jadot": {percent: parseFloat(data["JADOT.exp"])},
+            "Lassalle": {percent: parseFloat(data["LASSALLE.exp"])},
+            "Le Pen": {percent: parseFloat(data["LE PEN.exp"])},
+            "Macron": {percent: parseFloat(data["MACRON.exp"])},
+            "Mélenchon": {percent: parseFloat(data["MÉLENCHON.exp"])},
+            "Poutou": {percent: parseFloat(data["POUTOU.exp"])},
+            "Pécresse": {percent: parseFloat(data["PÉCRESSE.exp"])},
+            "Zemmour": {percent: parseFloat(data["ZEMMOUR.exp"])}
+          },
+          abstention: parseFloat(data["Abstentions_ins"])
         };
         that.setWinner(that.resultsCirconscriptions[data["CodeCirco"]]);
       }).then(() => {
@@ -174,6 +185,7 @@ export default {
       d3.dsv(";", '/presidentielle/resultats-par-niveau-fe-t2-france-entiere.csv', (data) => {
         that.resultsFrance.push({candidate: "Macron", percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))});
         that.resultsFrance.push({candidate: "Le Pen", percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))});
+        that.abstentionFrance = parseFloat(data["% Abs/Ins"].replace(',', '.'));
       });
 
       d3.dsv(";", '/presidentielle/resultats-par-niveau-subcom-t2-france-entiere.csv', (data) => {
@@ -181,8 +193,11 @@ export default {
           return;
         var code = that.fixOutreMer(data["Code du département"], false) + "" + data["Code de la commune"];
         that.resultsCommunes[code] = {
-          "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
-          "Le Pen": {percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))}
+          data: {
+            "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
+            "Le Pen": {percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))}
+          },
+          abstention: parseFloat(data["% Abs/Ins"].replace(',', '.'))
         };
         that.setWinner(that.resultsCommunes[code]);
       }).then(() => {
@@ -197,8 +212,11 @@ export default {
         var code = that.fixOutreMer(data["Code du département"], false);
         that.departements[code] = data["Libellé du département"];
         that.resultsDepartements[code] = {
-          "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
-          "Le Pen": {percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))}
+          data: {
+            "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
+            "Le Pen": {percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))}
+          },
+          abstention: parseFloat(data["% Abs/Ins"].replace(',', '.'))
         };
         that.setWinner(that.resultsDepartements[code]);
       }).then(() => {
@@ -211,8 +229,11 @@ export default {
           return;
         var code = that.fixOutreMer(data["Code du département"], false) + data["Code de la circonscription"];
         that.resultsCirconscriptions[code] = {
-          "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
-          "Le Pen": {percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))}
+          data: {
+            "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
+            "Le Pen": {percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))}
+          },
+          abstention: parseFloat(data["% Abs/Ins"].replace(',', '.'))
         };
         that.setWinner(that.resultsCirconscriptions[code]);
       }).then(() => {
@@ -263,16 +284,18 @@ export default {
         that.resultsFrance.push({candidate: "Reconquête", percent: parseFloat(data["REC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REC.Sièges"])});
         that.resultsFrance.push({candidate: "RN", percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])});
         that.resultsFrance.push({candidate: "Divers extrême droite", percent: parseFloat(data["DXD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXD.Sièges"])});
+        that.abstentionFrance = parseFloat(data["% Abs/Ins"].replace(',', '.'));
       });
 
       const custom = d3.dsvFormat(";");
       custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-subcom-t1-leg.csv'), (data, i) => {
         if(i > 0){
           var code = that.fixOutreMer(data[0] + "" + data[4], true);
-          that.resultsCommunes[code] = {};
+          that.resultsCommunes[code] = {data:{}};
           for(var col = 25; col <= data.length - 4; col = col + 8){
-             that.resultsCommunes[code][that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
+             that.resultsCommunes[code].data[that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
           }
+          that.resultsCommunes[code].abstention = parseFloat(data[9].replace(',', '.'));
           that.setWinner(that.resultsCommunes[code]);
         }
       });
@@ -280,10 +303,11 @@ export default {
       custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-dpt-t1-leg.csv'), (data, i) => {
         if(i > 0){
           var code = that.fixOutreMer(data[0], false);
-          that.resultsDepartements[code] = {};
+          that.resultsDepartements[code] = {data:{}};
           for(var col = 17; col <= data.length - 5; col = col + 5){
-             that.resultsDepartements[code][that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.')), sieges: parseInt(data[col + 4])};
+             that.resultsDepartements[code].data[that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.')), sieges: parseInt(data[col + 4])};
           }
+          that.resultsDepartements[code].abstention = parseFloat(data[5].replace(',', '.'));
           that.setWinner(that.resultsDepartements[code]);
         }
       });
@@ -293,10 +317,11 @@ export default {
           if(data[0] == undefined)
             return;
           var code = that.fixOutreMer(data[0], false) + data[2];
-          that.resultsCirconscriptions[code] = {};
+          that.resultsCirconscriptions[code] = {data:{}};
           for(var col = 23; col <= data.length - 4; col = col + 9){
-             that.resultsCirconscriptions[code][that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
+             that.resultsCirconscriptions[code].data[that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
           }
+          that.resultsCirconscriptions[code].abstention = parseFloat(data[7].replace(',', '.'));
           that.setWinner(that.resultsCirconscriptions[code]);
         }
       });
@@ -327,16 +352,18 @@ export default {
         that.resultsFrance.push({candidate: "Divers droite", percent: parseFloat(data["DVD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVD.Sièges"])});
         that.resultsFrance.push({candidate: "Droite souverainiste", percent: parseFloat(data["DSV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DSV.Sièges"])});
         that.resultsFrance.push({candidate: "RN", percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])});
+        that.abstentionFrance = parseFloat(data["% Abs/Ins"].replace(',', '.'));
       });
 
       const custom = d3.dsvFormat(";");
       custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-subcom-t2-leg.csv'), (data, i) => {
         if(i > 0){
           var code = that.fixOutreMer(data[0] + "" + data[4], true);
-          that.resultsCommunes[code] = {};
+          that.resultsCommunes[code] = {data:{}};
           for(var col = 25; col <= data.length - 4; col = col + 8){
-             that.resultsCommunes[code][that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
+             that.resultsCommunes[code].data[that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
           }
+          that.resultsCommunes[code].abstention = parseFloat(data[9].replace(',', '.'));
           that.setWinner(that.resultsCommunes[code]);
         }
       });
@@ -344,10 +371,11 @@ export default {
       custom.parseRows(this.loadFile('/legislatives/resultats-par-niveau-dpt-t2-leg.csv'), (data, i) => {
         if(i > 0){
           var code = that.fixOutreMer(data[0], false);
-          that.resultsDepartements[code] = {};
+          that.resultsDepartements[code] = {data:{}};
           for(var col = 17; col <= data.length - 5; col = col + 5){
-             that.resultsDepartements[code][that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.')), sieges: parseInt(data[col + 4])};
+             that.resultsDepartements[code].data[that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.')), sieges: parseInt(data[col + 4])};
           }
+          that.resultsDepartements[code].abstention = parseFloat(data[5].replace(',', '.'));
           that.setWinner(that.resultsDepartements[code]);
         }
       });
@@ -357,10 +385,11 @@ export default {
           if(data[0] == undefined)
             return;
           var code = that.fixOutreMer(data[0], false) + data[2];
-          that.resultsCirconscriptions[code] = {};
+          that.resultsCirconscriptions[code] = {data:{}};
           for(var col = 23; col <= data.length - 4; col = col + 9){
-             that.resultsCirconscriptions[code][that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
+             that.resultsCirconscriptions[code].data[that.readableParty(data[col])] = {percent: parseFloat(data[col + 3].replace(',', '.'))};
           }
+          that.resultsCirconscriptions[code].abstention = parseFloat(data[7].replace(',', '.'));
           that.setWinner(that.resultsCirconscriptions[code]);
         }
       });
