@@ -108,7 +108,7 @@ export default {
       var that = this;
       var chartData = [];
       chartData.push(["Parti", "Sièges"]);
-      that.chartOptions.color = [];
+      that.chartOptions.colors = [];
       if(this.sortedResults[0] != null && this.sortedResults[0].sieges != null){
         this.sortedResults.forEach(element => {
           chartData.push([element.candidate, element.sieges]);
