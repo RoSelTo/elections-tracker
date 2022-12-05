@@ -1,5 +1,5 @@
 <template>
-  <div class="tab box-border text-center h-fit pb-[20px] flex-1 shadow-lg">
+  <div v-if="results != null" class="tab box-border text-center h-fit pb-[20px] flex-1 shadow-lg">
     <h2 v-if="geo != null" class="text-xl mt-10">Résultats {{geo.label}}</h2>
     <h2 v-else class="text-xl mt-10">Résultats France</h2>
     <table id="tab-result">
@@ -16,6 +16,9 @@
         </tr>
       </tbody>
     </table>
+    <div class="text-lg mt-5">
+      <span class="font-bold">Abstention</span> : {{ results.abstention }}%
+    </div>
     <GChart v-if="sortedResults[0] != null && sortedResults[0].sieges != null"
         type="PieChart"
         :data="chartData"
@@ -34,12 +37,8 @@ export default {
   components: {
     GChart
   },
-  props: {
-    resultsFrance: Array
-  },
   data: function(){
     return {
-      loading: true,
       chartOptions: {
         title: "Répartition des sièges",
         titleTextStyle: {
@@ -92,9 +91,7 @@ export default {
     },
     sortedResults: function(){
       var results = [];
-      if(!this.results) {
-        results = this.resultsFrance;
-      } else {
+      if(this.results != null){
         Object.keys(this.results.data).forEach(k => {
           var result = {candidate: k, percent: Math.round(this.results.data[k].percent*100)/100};
           if(this.results.data[k].sieges != null)
@@ -109,7 +106,7 @@ export default {
       var chartData = [];
       chartData.push(["Parti", "Sièges"]);
       that.chartOptions.colors = [];
-      if(this.sortedResults[0] != null && this.sortedResults[0].sieges != null){
+      if(this.results != null && this.sortedResults[0] != null && this.sortedResults[0].sieges != null){
         this.sortedResults.forEach(element => {
           chartData.push([element.candidate, element.sieges]);
           that.chartOptions.colors.push(that.colorCandidate[element.candidate] != null ? that.colorCandidate[element.candidate] : "grey");

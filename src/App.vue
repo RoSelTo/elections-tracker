@@ -32,7 +32,7 @@ export default {
       resultsCommunes: {},
       resultsDepartements: {},
       resultsCirconscriptions: {},
-      resultsFrance: [],
+      resultsFrance: {},
       abstentionFrance: 0,
       departements: {},
       init: false,
@@ -94,10 +94,12 @@ export default {
       if(that.round == "1" && that.selectedElec === "presidentielle2022" && that.init)
         return;
       that.round = "1";
-      that.resultsFrance = [];
+      that.resultsFrance = {data:{}};
       d3.dsv(",", '/presidentielle/01-resultats-france-entiere.csv', (data) => {
-        that.resultsFrance.push({candidate: that.toTitleCase(data["cand_nom"]), percent: Math.round(data["cand_rapport_exprim"]*100)/100});
-        that.abstentionFrance = parseFloat(data["abstention_pourc"]);
+        that.resultsFrance.data[that.toTitleCase(data["cand_nom"])] = { percent: Math.round(data["cand_rapport_exprim"]*100)/100 };
+        that.resultsFrance.abstention = parseFloat(data["abstention_pourc"]);
+      }).then(() => {
+        that.$store.commit("setFrance", that.resultsFrance);
       });
 
       d3.dsv(",", '/presidentielle/p2022-resultats-communes-t1.csv', (data) => {
@@ -179,13 +181,15 @@ export default {
       if(that.round == "2" && that.selectedElec === "presidentielle2022" && that.init)
         return;
       that.round = "2";
-      that.resultsFrance = [];
+      that.resultsFrance = {data:{}};
       that.resultsDepartements = {};
       that.resultsCommunes = {};
       d3.dsv(";", '/presidentielle/resultats-par-niveau-fe-t2-france-entiere.csv', (data) => {
-        that.resultsFrance.push({candidate: "Macron", percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))});
-        that.resultsFrance.push({candidate: "Le Pen", percent: parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.'))});
-        that.abstentionFrance = parseFloat(data["% Abs/Ins"].replace(',', '.'));
+        that.resultsFrance.data["Macron"] = { percent:  parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.')) };
+        that.resultsFrance.data["Le Pen"] = { percent:  parseFloat(data["LE PEN.% Voix/Exp"].replace(',', '.')) };
+        that.resultsFrance.abstention = parseFloat(data["% Abs/Ins"].replace(',', '.'));
+      }).then(() => {
+        that.$store.commit("setFrance", that.resultsFrance);
       });
 
       d3.dsv(";", '/presidentielle/resultats-par-niveau-subcom-t2-france-entiere.csv', (data) => {
@@ -264,27 +268,27 @@ export default {
       if(that.round == "1" && that.selectedElec === "legislatives2022" && that.init)
         return;
       that.round = "1";
-      that.resultsFrance = [];
+      that.resultsFrance = {data:{}};
       that.resultsDepartements = {};
       that.resultsCommunes = {};
       d3.dsv(";", '/legislatives/resultats-par-niveau-fe-t1-leg.csv', (data) => {
-        that.resultsFrance.push({candidate: "Ensemble", percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["ENS.Sièges"])});
-        that.resultsFrance.push({candidate: "NUPES", percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["NUP.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers extrême gauche", percent: parseFloat(data["DXG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXG.Sièges"])});
-        that.resultsFrance.push({candidate: "Radical de gauche", percent: parseFloat(data["RDG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RDG.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers gauche", percent: parseFloat(data["DVG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVG.Sièges"])});
-        that.resultsFrance.push({candidate: "Ecologistes", percent: parseFloat(data["ECO.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["ECO.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers", percent: parseFloat(data["DIV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DIV.Sièges"])});
-        that.resultsFrance.push({candidate: "Régionalistes", percent: parseFloat(data["REG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REG.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers centre", percent: parseFloat(data["DVC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVC.Sièges"])});
-        that.resultsFrance.push({candidate: "UDI", percent: parseFloat(data["UDI.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["UDI.Sièges"])});
-        that.resultsFrance.push({candidate: "LR", percent: parseFloat(data["LR.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["LR.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers droite", percent: parseFloat(data["DVD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVD.Sièges"])});
-        that.resultsFrance.push({candidate: "Droite souverainiste", percent: parseFloat(data["DSV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DSV.Sièges"])});
-        that.resultsFrance.push({candidate: "Reconquête", percent: parseFloat(data["REC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REC.Sièges"])});
-        that.resultsFrance.push({candidate: "RN", percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers extrême droite", percent: parseFloat(data["DXD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXD.Sièges"])});
-        that.abstentionFrance = parseFloat(data["% Abs/Ins"].replace(',', '.'));
+        that.resultsFrance.data["Ensemble"] = { percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["ENS.Sièges"])};
+        that.resultsFrance.data["NUPES"] = { percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["NUP.Sièges"])};
+        that.resultsFrance.data["Divers extrême gauche"] = { percent: parseFloat(data["DXG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXG.Sièges"])};
+        that.resultsFrance.data["Radical de gauche"] = { percent: parseFloat(data["RDG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RDG.Sièges"])};
+        that.resultsFrance.data["Divers gauche"] = { percent: parseFloat(data["DVG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVG.Sièges"])};
+        that.resultsFrance.data["Ecologistes"] = { percent: parseFloat(data["ECO.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["ECO.Sièges"])};
+        that.resultsFrance.data["Divers"] = { percent: parseFloat(data["DIV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DIV.Sièges"])};
+        that.resultsFrance.data["Régionalistes"] = { percent: parseFloat(data["REG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REG.Sièges"])};
+        that.resultsFrance.data["Divers centre"] = { percent: parseFloat(data["DVC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVC.Sièges"])};
+        that.resultsFrance.data["UDI"] = { percent: parseFloat(data["UDI.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["UDI.Sièges"])};
+        that.resultsFrance.data["LR"] = { percent: parseFloat(data["LR.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["LR.Sièges"])};
+        that.resultsFrance.data["Divers droite"] = { percent: parseFloat(data["DVD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVD.Sièges"])};
+        that.resultsFrance.data["Droite souverainiste"] = { percent: parseFloat(data["DSV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DSV.Sièges"])};
+        that.resultsFrance.data["Reconquête"] = { percent: parseFloat(data["REC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REC.Sièges"])};
+        that.resultsFrance.data["RN"] = { percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])};
+        that.resultsFrance.data["Divers extrême droite"] = { percent: parseFloat(data["DXD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXD.Sièges"])};
+        that.resultsFrance.abstention = parseFloat(data["% Abs/Ins"].replace(',', '.'));
       });
 
       const custom = d3.dsvFormat(";");
@@ -336,7 +340,7 @@ export default {
       if(that.round == "2" && that.selectedElec === "legislatives2022" && that.init)
         return;
       that.round = "2";
-      that.resultsFrance = [];
+      that.resultsFrance = {data:{}};
       that.resultsDepartements = {};
       that.resultsCommunes = {};
       d3.dsv(";", '/legislatives/resultats-par-niveau-fe-t2-leg.csv', (data) => {

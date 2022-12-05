@@ -5,6 +5,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        loaded: false,
+        resultsFrance: {},
         resultsCommunes: {},
         resultsDepartements: {},
         resultsCirconscriptions: {},
@@ -17,6 +19,10 @@ export default new Vuex.Store({
         }
     },
     mutations: {
+        setFrance(state, value) {
+            state.loaded = true;
+            state.resultsFrance = value;
+        },
         setCommunes(state, value) {
             state.resultsCommunes = value;
         },
@@ -38,9 +44,11 @@ export default new Vuex.Store({
     },
     getters: {
         resultsForGeo: function(state){
-            if(state.selectedGeo == null)
+            if(!state.loaded)
                 return null;
-            if(state.selectedLevel == "communes")
+            if(state.selectedGeo == null)
+                return state.resultsFrance;
+            else if(state.selectedLevel == "communes")
                 return state.resultsCommunes[state.selectedGeo.id];
             else if(state.selectedLevel == "departements")
                 return state.resultsDepartements[state.selectedGeo.id];
@@ -54,6 +62,8 @@ export default new Vuex.Store({
                 return state.resultsDepartements;
             else if(state.selectedLevel == "circonscriptions")
                 return state.resultsCirconscriptions;
+            else
+                return state.resultsFrance
         }
     }
 })
