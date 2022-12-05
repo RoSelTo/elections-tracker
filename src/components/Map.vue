@@ -10,11 +10,11 @@
     </div>
     <div class="flex justify-center space-x-4">
       <div class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 
-        font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800">
+        font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800" v-on:click="mode = 'results'">
         Résultats
       </div>
       <div class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg 
-      text-sm px-5 py-2.5 text-center mt-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800">
+      text-sm px-5 py-2.5 text-center mt-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800" v-on:click="mode = 'abstention'">
         Abstention
       </div>
     </div>
@@ -44,6 +44,7 @@ export default {
     return {
       loading: false,
       level: "departements",
+      mode: "results",
       currentRound: "",
       currentElec: "",
       colorCandidate: {
@@ -132,8 +133,9 @@ export default {
             tooltip.transition()        
                 .duration(200)      
                 .style("opacity", .9);
+            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner : "<b>Abstention : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].abstention  + " %";
             tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
-                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner)
+                        + tooltipData)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
           })
@@ -199,8 +201,9 @@ export default {
             tooltip.transition()        
                 .duration(200)      
                 .style("opacity", .9);
+            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" + that.$store.state.resultsDepartements[e.properties.dep].winner : "<b>Abstention : </b>" + that.$store.state.resultsDepartements[e.properties.dep].abstention  + " %";
             tooltip.html( "<b>Département : </b>" + e.properties.libgeo + " (" + e.properties.dep + ")<br/>"
-                        + "<b>Vainqueur : </b>" + that.$store.state.resultsDepartements[e.properties.dep].winner)
+                        + tooltipData)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
           })
@@ -267,8 +270,9 @@ export default {
                 .duration(200)      
                 .style("opacity", .9);
             var id = e.properties.code_dpt + e.properties.num_circ.padStart(2, "0");
+            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" +  that.$store.state.resultsCirconscriptions[id].winner : "<b>Abstention : </b>" + that.$store.state.resultsCirconscriptions[id].abstention + " %";
             tooltip.html( "<b>Circonscription : </b>" + e.properties.num_circ + "<sup>ème</sup> " + that.departements[e.properties.code_dpt] + "<br/>"
-                        + "<b>Vainqueur : </b>" + that.$store.state.resultsCirconscriptions[id].winner)
+                        + tooltipData)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
           })
@@ -296,13 +300,21 @@ export default {
     update: function(){
       var that = this;
       var notFound = [];
+      // Chloropleth colors
+      var colorScale = d3.scaleThreshold()
+                  .domain([10, 20, 25, 30, 40])
+                  .range(d3.schemeGreys[5]);
+
        d3.select('#map')
           .selectAll("path")
           .attr("fill", d => {
             var codeGeo = that.getCodeGeo(d);
             var results = that.$store.getters.getResults;
             if(results[codeGeo] != null){
-              return that.colorCandidate[results[codeGeo].winner];
+              if(that.mode == "results")
+                return that.colorCandidate[results[codeGeo].winner];
+              else if(that.mode == "abstention")
+                return colorScale(results[codeGeo].abstention);
             }
             notFound.push(codeGeo);
             return "grey";
@@ -333,6 +345,9 @@ export default {
     selectedElec: function(){
       if(this.selectedElec != this.currentElec)
         this.reloadMap();
+    },
+    mode: function(){
+      this.update();
     }
   }
 }
