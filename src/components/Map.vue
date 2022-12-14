@@ -301,8 +301,9 @@ export default {
       var that = this;
       var notFound = [];
       // Chloropleth colors
+      var meanAbstention = that.$store.state.resultsFrance.abstention;
       var colorScale = d3.scaleThreshold()
-                  .domain([10, 20, 25, 30, 40])
+                  .domain([meanAbstention * 0.5, meanAbstention * 0.8, meanAbstention,meanAbstention * 1.2, meanAbstention * 1.5])
                   .range(d3.schemeGreys[5]);
 
        d3.select('#map')

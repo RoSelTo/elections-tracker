@@ -289,6 +289,8 @@ export default {
         that.resultsFrance.data["RN"] = { percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])};
         that.resultsFrance.data["Divers extrême droite"] = { percent: parseFloat(data["DXD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXD.Sièges"])};
         that.resultsFrance.abstention = parseFloat(data["% Abs/Ins"].replace(',', '.'));
+      }).then(() => {
+        that.$store.commit("setFrance", that.resultsFrance);
       });
 
       const custom = d3.dsvFormat(";");
@@ -344,19 +346,21 @@ export default {
       that.resultsDepartements = {};
       that.resultsCommunes = {};
       d3.dsv(";", '/legislatives/resultats-par-niveau-fe-t2-leg.csv', (data) => {
-        that.resultsFrance.push({candidate: "Ensemble", percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["ENS.Sièges"])});
-        that.resultsFrance.push({candidate: "NUPES", percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["NUP.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers extrême gauche", percent: parseFloat(data["DXG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXG.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers gauche", percent: parseFloat(data["DVG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVG.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers", percent: parseFloat(data["DIV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DIV.Sièges"])});
-        that.resultsFrance.push({candidate: "Régionalistes", percent: parseFloat(data["REG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REG.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers centre", percent: parseFloat(data["DVC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVC.Sièges"])});
-        that.resultsFrance.push({candidate: "UDI", percent: parseFloat(data["UDI.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["UDI.Sièges"])});
-        that.resultsFrance.push({candidate: "LR", percent: parseFloat(data["LR.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["LR.Sièges"])});
-        that.resultsFrance.push({candidate: "Divers droite", percent: parseFloat(data["DVD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVD.Sièges"])});
-        that.resultsFrance.push({candidate: "Droite souverainiste", percent: parseFloat(data["DSV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DSV.Sièges"])});
-        that.resultsFrance.push({candidate: "RN", percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])});
-        that.abstentionFrance = parseFloat(data["% Abs/Ins"].replace(',', '.'));
+        that.resultsFrance.data["Ensemble"] = { percent: parseFloat(data["ENS.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["ENS.Sièges"])};
+        that.resultsFrance.data["NUPES"] = { percent: parseFloat(data["NUP.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["NUP.Sièges"])};
+        that.resultsFrance.data["Divers extrême gauche"] = { percent: parseFloat(data["DXG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DXG.Sièges"])};
+        that.resultsFrance.data["Divers gauche"] = { percent: parseFloat(data["DVG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVG.Sièges"])};
+        that.resultsFrance.data["Divers"] = { percent: parseFloat(data["DIV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DIV.Sièges"])};
+        that.resultsFrance.data["Régionalistes"] = { percent: parseFloat(data["REG.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["REG.Sièges"])};
+        that.resultsFrance.data["Divers centre"] = { percent: parseFloat(data["DVC.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVC.Sièges"])};
+        that.resultsFrance.data["UDI"] = { percent: parseFloat(data["UDI.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["UDI.Sièges"])};
+        that.resultsFrance.data["LR"] = { percent: parseFloat(data["LR.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["LR.Sièges"])};
+        that.resultsFrance.data["Divers droite"] = { percent: parseFloat(data["DVD.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DVD.Sièges"])};
+        that.resultsFrance.data["Droite souverainiste"] = { percent: parseFloat(data["DSV.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["DSV.Sièges"])};
+        that.resultsFrance.data["RN"] = { percent: parseFloat(data["RN.% Voix/Exp"].replace(',', '.')), sieges: parseInt(data["RN.Sièges"])};
+        that.resultsFrance.abstention = parseFloat(data["% Abs/Ins"].replace(',', '.'));
+      }).then(() => {
+        that.$store.commit("setFrance", that.resultsFrance);
       });
 
       const custom = d3.dsvFormat(";");
