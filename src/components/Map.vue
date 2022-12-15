@@ -271,14 +271,14 @@ export default {
                 .style("opacity", .9);
             var id = e.properties.code_dpt + e.properties.num_circ.padStart(2, "0");
             var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" +  that.$store.state.resultsCirconscriptions[id].winner : "<b>Abstention : </b>" + that.$store.state.resultsCirconscriptions[id].abstention + " %";
-            tooltip.html( "<b>Circonscription : </b>" + e.properties.num_circ + "<sup>ème</sup> " + that.departements[e.properties.code_dpt] + "<br/>"
+            tooltip.html( "<b>Circonscription : </b>" + e.properties.num_circ + "<sup>ème</sup> " + that.departements[e.properties.code_dpt].name + "<br/>"
                         + tooltipData)
                   .style("left", pos.x + 50 + "px")     
                   .style("top", (pos.y) + "px");
           })
           .on("click", function(e){
             var id = e.properties.code_dpt + e.properties.num_circ.padStart(2, "0");
-            var label = e.properties.num_circ + "ème " + that.departements[e.properties.code_dpt];
+            var label = e.properties.num_circ + "ème " + that.departements[e.properties.code_dpt].name;
             that.$store.commit("selectGeo", {id: id, label: label });
           })
           .on("mouseout", function(){

@@ -128,7 +128,7 @@ export default {
 
       d3.dsv(",", '/presidentielle/p2022-resultats-departement-t1.csv', (data) => {
         var code = that.fixOutreMer(data["CodeDépartement"], false);
-        that.departements[code] = data["Département"];
+        that.departements[code] = { "name": data["Département"]};
         that.resultsDepartements[code] = {
           data: {
             "Arthaud":  {percent: parseFloat(data["ARTHAUD.exp"])},
@@ -214,7 +214,7 @@ export default {
         if(data["Code du département"] == undefined)
           return;
         var code = that.fixOutreMer(data["Code du département"], false);
-        that.departements[code] = data["Libellé du département"];
+        that.departements[code].name = data["Libellé du département"];
         that.resultsDepartements[code] = {
           data: {
             "Macron": {percent: parseFloat(data["MACRON.% Voix/Exp"].replace(',', '.'))},
@@ -407,6 +407,18 @@ export default {
       that.$store.commit("setCirconscriptions", that.resultsCirconscriptions);
       that.init = true;
     },
+    loadInseeData:function(){
+      var that = this;
+      d3.dsv(";", '/Export_Departements_Insee.csv', (data) => {
+        this.departements[data["Code"]] = {
+          name: data["Libellé"],
+          population: data["Estimations de population 2022"],
+          chomage: data["Taux de chômage trimestriel 2022-T2"],
+          medianeNiveau: data["Médiane du niveau de vie 2019"],
+          electeurs: data["Électeurs - liste principale par sexe, âge et département 2022"]
+        };
+      });
+    },
     loadFile: function(filePath) {
       var result = null;
       var xmlhttp = new XMLHttpRequest();
@@ -457,6 +469,7 @@ export default {
   mounted: function(){
     var that = this;
     that.loadPresidentielle();
+    that.loadInseeData();
   },
   watch: {
     selectedElec: function(){
