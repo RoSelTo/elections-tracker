@@ -410,12 +410,12 @@ export default {
     loadInseeData:function(){
       var that = this;
       d3.dsv(";", '/Export_Departements_Insee.csv', (data) => {
-        this.departements[data["Code"]] = {
+        that.departements[data["Code"]] = {
           name: data["Libellé"],
-          population: data["Estimations de population 2022"],
-          chomage: data["Taux de chômage trimestriel 2022-T2"],
-          medianeNiveau: data["Médiane du niveau de vie 2019"],
-          electeurs: data["Électeurs - liste principale par sexe, âge et département 2022"]
+          population: parseInt(data["Estimations de population 2022"]),
+          chomage: parseFloat(data["Taux de chômage trimestriel 2022-T2"]),
+          medianeNiveau: parseInt(data["Médiane du niveau de vie 2019"]),
+          electeurs: parseInt(data["Électeurs - liste principale par sexe, âge et département 2022"])
         };
       });
     },

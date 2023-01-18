@@ -17,14 +17,18 @@
       text-sm px-5 py-2.5 text-center mt-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800" v-on:click="mode = 'abstention'">
         Abstention
       </div>
+      <div v-show="level == 'departements'" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg 
+      text-sm px-5 py-2.5 text-center mt-2 dark:border-red-500 dark:text-red-300 dark:hover:text-white dark:hover:bg-red-500 dark:focus:ring-red-600" v-on:click="mode = 'analysis'">
+        Analyse
+      </div>
     </div>
-    <!-- Add loading -->
-    <div id="mapContainer" style="height:calc(100vh - 230px)" v-show="!loading">
+    <div v-if="mode != 'analysis'" id="mapContainer" style="height:calc(100vh - 230px)" v-show="!loading">
       <svg id="map" class="m-auto"></svg>
     </div>
-    <div class="tooltip">
+    <div v-if="mode != 'analysis'" class="tooltip">
     </div>
     <div v-if="loading" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
+    <analysis-component v-else-if="mode == 'analysis' && level == 'departements'" :departements="departements" :round="round" :selected-elec="selectedElec"/>
   </div>
 </template>
 
@@ -32,8 +36,12 @@
 import myStore from './store.js'
 import * as d3 from 'd3'
 import * as topojson from 'topojson'
+import AnalysisComponent from './Analysis.vue'
 export default {
   name: 'MapComponent',
+  components: {
+    AnalysisComponent
+  },
   store: myStore,
   props: {
     departements: Object,
