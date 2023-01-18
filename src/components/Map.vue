@@ -141,7 +141,8 @@ export default {
             tooltip.transition()        
                 .duration(200)      
                 .style("opacity", .9);
-            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner : "<b>Abstention : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].abstention  + " %";
+            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" + that.$store.state.resultsCommunes[e.properties.codgeo].winner : 
+              "<b>Abstention : </b>" + Math.round(that.$store.state.resultsCommunes[e.properties.codgeo].abstention * 100)/100  + " %";
             tooltip.html( "<b>Commune : </b>" + e.properties.libgeo + " (" + e.properties.codgeo + ")<br/>"
                         + tooltipData)
                   .style("left", pos.x + 50 + "px")     
@@ -209,7 +210,8 @@ export default {
             tooltip.transition()        
                 .duration(200)      
                 .style("opacity", .9);
-            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" + that.$store.state.resultsDepartements[e.properties.dep].winner : "<b>Abstention : </b>" + that.$store.state.resultsDepartements[e.properties.dep].abstention  + " %";
+            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" + that.$store.state.resultsDepartements[e.properties.dep].winner : 
+              "<b>Abstention : </b>" + Math.round(that.$store.state.resultsDepartements[e.properties.dep].abstention * 100)/100  + " %";
             tooltip.html( "<b>Département : </b>" + e.properties.libgeo + " (" + e.properties.dep + ")<br/>"
                         + tooltipData)
                   .style("left", pos.x + 50 + "px")     
@@ -278,7 +280,8 @@ export default {
                 .duration(200)      
                 .style("opacity", .9);
             var id = e.properties.code_dpt + e.properties.num_circ.padStart(2, "0");
-            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" +  that.$store.state.resultsCirconscriptions[id].winner : "<b>Abstention : </b>" + that.$store.state.resultsCirconscriptions[id].abstention + " %";
+            var tooltipData = that.mode == "results" ? "<b>Vainqueur : </b>" +  that.$store.state.resultsCirconscriptions[id].winner : 
+              "<b>Abstention : </b>" + Math.round(that.$store.state.resultsCirconscriptions[id].abstention * 100)/100 + " %";
             tooltip.html( "<b>Circonscription : </b>" + e.properties.num_circ + "<sup>ème</sup> " + that.departements[e.properties.code_dpt].name + "<br/>"
                         + tooltipData)
                   .style("left", pos.x + 50 + "px")     
