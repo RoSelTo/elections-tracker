@@ -22,13 +22,13 @@
         Analyse
       </div>
     </div>
-    <div v-if="mode != 'analysis'" id="mapContainer" style="height:calc(100vh - 230px)" v-show="!loading">
+    <div v-show="mode != 'analysis' && !loading" id="mapContainer" style="height:calc(100vh - 230px)">
       <svg id="map" class="m-auto"></svg>
     </div>
-    <div v-if="mode != 'analysis'" class="tooltip">
+    <div v-show="mode != 'analysis'" class="tooltip">
     </div>
-    <div v-if="loading" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
-    <analysis-component v-else-if="mode == 'analysis' && level == 'departements'" :departements="departements" :round="round" :selected-elec="selectedElec"/>
+    <div v-show="loading" class="lds-ring">Chargement<div></div><div></div><div></div><div></div></div>
+    <analysis-component v-if="mode == 'analysis' && level == 'departements'" :departements="departements" :round="round" :selected-elec="selectedElec"/>
   </div>
 </template>
 
@@ -88,6 +88,7 @@ export default {
   },
   methods:{
     reloadMap: function(){
+      this.mode = "results";
       if(this.level == "communes")
         this.createMapCommunes();
       else if (this.level == "circonscriptions")

@@ -39,13 +39,13 @@ export default {
     return {
       loading: false,
        chartOptions: {
-        hAxis: { title: 'Vote LePen' },
-        vAxis: { title: 'Chomage' },
+        hAxis: { title: '' },
+        vAxis: { title: '' },
         bubble: { textStyle: { fontSize: 11 } },
         width: 800,
         height: 600
       },
-      variable1: "Le Pen",
+      variable1: "",
       variable2: "chomage",
       chartData: null,
       colorCandidate: {
@@ -82,25 +82,30 @@ export default {
   methods:{
     drawChart: function(){
         var that = this;
-        var data = that.$store.state.resultsDepartements;
-        that.chartData = [];
-        that.chartOptions.hAxis.title = `Vote ${that.variable1}`;
-        that.chartOptions.vAxis.title = `${that.variable2}`;
-        that.chartOptions.colors = [];
-        that.chartData.push(["Id", that.variable1, that.variable2, "", "Population"]);
-        if(data != null){
-          var winners = [];
-          Object.keys(data).forEach(element => {
-              var absValue = that.variable2 == "abstention" ? data[element].abstention : that.departements[element][that.variable2];
-              that.chartData.push([element, data[element].data[that.variable1].percent, absValue, data[element].winner, that.departements[element].population]);
-              if(winners.indexOf(data[element].winner) == -1)
-                winners.push(data[element].winner);
-          });
-          winners.forEach(w => that.chartOptions.colors.push(that.colorCandidate[w] != null ? that.colorCandidate[w] : "grey"));
+        if(that.variable1 != "" && that.variable2 != "") {
+          var data = that.$store.state.resultsDepartements;
+          that.chartData = [];
+          that.chartOptions.hAxis.title = `Vote ${that.variable1}`;
+          that.chartOptions.vAxis.title = `${that.variable2}`;
+          that.chartOptions.colors = [];
+          that.chartData.push(["Id", that.variable1, that.variable2, "", "Population"]);
+          if(data != null){
+            var winners = [];
+            Object.keys(data).forEach(element => {
+                var absValue = that.variable2 == "abstention" ? data[element].abstention : that.departements[element][that.variable2];
+                if(data[element].data[that.variable1] != null) {
+                  that.chartData.push([element, data[element].data[that.variable1].percent, absValue, data[element].winner, that.departements[element].population]);
+                  if(winners.indexOf(data[element].winner) == -1)
+                    winners.push(data[element].winner);
+                }
+            });
+            winners.forEach(w => that.chartOptions.colors.push(that.colorCandidate[w] != null ? that.colorCandidate[w] : "grey"));
+          }
         }
     }  
   },
   mounted: function(){
+      this.variable1 = this.variable1List[0];
       this.drawChart();
   },
   computed:{
